@@ -13,7 +13,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.service.notification.NotificationListenerService;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -41,11 +40,11 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        prefs = this.getSharedPreferences("nextlit", MODE_PRIVATE);
+        prefs = getSharedPreferences("nextlit", MODE_PRIVATE);
 
         try {
             ledcontrol = new LedControl();
-        } catch (IOException ioe) {
+        } catch (IOException e) {
             Toast.makeText(this, "App requires root access, closing", Toast.LENGTH_LONG).show();
             finish();
         }
@@ -101,19 +100,29 @@ public class MainActivity extends AppCompatActivity {
            @Override
             public void onCheckedChanged(CompoundButton button, boolean checked) {
                if (checked) {
-                   // take user to Notification Access
+                   // take user to Notification access if they haven't enabled the service already
                    String enabledNotificationListeners = Settings.Secure.getString(
                            getContentResolver(), "enabled_notification_listeners");
-                   if (!enabledNotificationListeners.contains(getPackageName())) {
+
+                   if (enabledNotificationListeners != null
+                           && !enabledNotificationListeners.contains(getPackageName())) {
                        startActivity(new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS));
                        Toast.makeText(MainActivity.this, "Enable Nextlit", Toast.LENGTH_SHORT).show();
                    }
-                   startService(new Intent(MainActivity.this, NotificationListenerService.class));
+
+                   /*
+                   Normal procedure here would be to call start/stopService, but for whatever reason
+                   Android ignores these calls for NotificationListenerServices, and so effectively
+                   the only thing that governs whether a service is enabled or not is if it's enabled
+                   in Notification access. Instead, we accept that the service will always run and
+                   just modify a static flag that says if the lights should be enabled or not.
+                   */
+                   NotificationLightsService.enabled = true;
                    Toast.makeText(MainActivity.this, "Service started", Toast.LENGTH_SHORT).show();
                }
                else {
                    ledcontrol.clearPattern();
-                   stopService(new Intent(MainActivity.this, NotificationListenerService.class));
+                   NotificationLightsService.enabled = false;
                    Toast.makeText(MainActivity.this, "Service stopped", Toast.LENGTH_SHORT).show();
                }
            }

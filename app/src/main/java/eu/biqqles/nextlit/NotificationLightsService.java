@@ -14,12 +14,14 @@ import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
+import android.util.Log;
 
 import java.io.IOException;
 
 public class NotificationLightsService extends NotificationListenerService {
     SharedPreferences prefs;
     LedControl ledcontrol;
+    public static boolean enabled = false;
 
     @Override
     public void onCreate() {
@@ -27,7 +29,7 @@ public class NotificationLightsService extends NotificationListenerService {
         prefs = this.getSharedPreferences("nextlit", MODE_PRIVATE);
         try {
             ledcontrol = new LedControl();
-        } catch (IOException ioe) {
+        } catch (IOException e) {
             // MainActivity will close if its LedControl can't initialise; how did you manage to get
             // here?
             System.exit(0);
@@ -40,16 +42,18 @@ public class NotificationLightsService extends NotificationListenerService {
     }
 
     @Override
-    public void onNotificationPosted(StatusBarNotification sbn){
-        if (getActiveNotifications().length > 0) {
-            int pattern  = prefs.getInt("predef_pattern", 0);  // get selected pattern from preferences
-            // if pattern isn't set already, set it
-            if (ledcontrol.getPattern() != pattern) {
-                ledcontrol.setPattern(pattern);
+    public void onNotificationPosted(StatusBarNotification sbn) {
+        Log.w("NEXTLIT", String.valueOf(enabled));
+        if (enabled) {
+            if (getActiveNotifications().length > 0) {
+                int pattern = prefs.getInt("predef_pattern", 0);  // get selected pattern from preferences
+                // if pattern isn't set already, set it
+                if (ledcontrol.getPattern() != pattern) {
+                    ledcontrol.setPattern(pattern);
+                }
+            } else {
+                ledcontrol.clearPattern();
             }
-        }
-        else {
-            ledcontrol.clearPattern();
         }
     }
 

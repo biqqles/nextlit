@@ -44,7 +44,7 @@ class LedControl {
         String cmd = MessageFormat.format("cat {0}\n", PATTERN_FILE);
         try {
             return Integer.parseInt(execCommand(cmd, true));
-        } catch (NumberFormatException ex) {
+        } catch (NumberFormatException e) {
             return 0;
         }
      }
@@ -81,9 +81,9 @@ class LedControl {
             if (getOutput) {
                 return br.readLine();
             }
-        } catch (IOException ioe) {
-            Log.e("NEXTLIT", MessageFormat.format("Failed to execute {} with error {}",
-                    command, ioe));
+        } catch (IOException e) {
+            Log.e("NEXTLIT", MessageFormat.format("Failed to execute {0} with error {1}",
+                    command, e));
         }
         return null;
     }
