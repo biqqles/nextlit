@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Inspired by colourway from <https://drive.google.com/file/d/0B7_Lpp5Iqj6wZVlnbWZSNmVoaFk/view>-->
+<resources>
+    <color name="colorPrimary">#51c1c0</color>
+    <color name="colorPrimaryDark">#51c1c0</color>
+    <color name="colorAccent">#eeeeee</color>
+</resources>
