@@ -16,6 +16,7 @@ import android.provider.Settings;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -54,11 +55,19 @@ public class MainActivity extends AppCompatActivity {
 
         patternSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView adapterView, View view, int i, long l) {
-                ledcontrol.clearPattern();
                 previewButton.setChecked(false);
-                // update preferences
-                // spinner index starts at 0 but patterns start at 1 (0 = clear)
-                prefs.edit().putInt("predef_pattern", i + 1).apply();
+                ledcontrol.clearPattern();
+                ledcontrol.disableAllEngines();
+                if (i < 5) {
+                    // predefined commands
+                    // update preferences
+                    // (spinner index starts at 0 but patterns start at 1 (0 = clear))
+                    prefs.edit().putInt("predef_pattern", i + 1).apply();
+                } else {
+                    // custom demonstration
+                    Log.e("NEXTLIT", String.valueOf(i - 5));
+                    ledcontrol.setCustomPattern(ledcontrol.customPatterns[i - 5]);
+                }
             }
 
             public void onNothingSelected(AdapterView<?> adapterView) {
@@ -104,8 +113,8 @@ public class MainActivity extends AppCompatActivity {
                    String enabledNotificationListeners = Settings.Secure.getString(
                            getContentResolver(), "enabled_notification_listeners");
 
-                   if (enabledNotificationListeners != null
-                           && !enabledNotificationListeners.contains(getPackageName())) {
+                   if (enabledNotificationListeners == null
+                           || !enabledNotificationListeners.contains(getPackageName())) {
                        startActivity(new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS));
                        Toast.makeText(MainActivity.this, "Enable Nextlit", Toast.LENGTH_SHORT).show();
                    }
@@ -119,8 +128,7 @@ public class MainActivity extends AppCompatActivity {
                    */
                    NotificationLightsService.enabled = true;
                    Toast.makeText(MainActivity.this, "Service started", Toast.LENGTH_SHORT).show();
-               }
-               else {
+               } else {
                    ledcontrol.clearPattern();
                    NotificationLightsService.enabled = false;
                    Toast.makeText(MainActivity.this, "Service stopped", Toast.LENGTH_SHORT).show();

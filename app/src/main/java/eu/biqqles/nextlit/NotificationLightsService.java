@@ -14,7 +14,6 @@ import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
-import android.util.Log;
 
 import java.io.IOException;
 
@@ -22,11 +21,11 @@ public class NotificationLightsService extends NotificationListenerService {
     SharedPreferences prefs;
     LedControl ledcontrol;
     public static boolean enabled = false;
+    public static boolean showWhenScreenOn = false;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        prefs = this.getSharedPreferences("nextlit", MODE_PRIVATE);
         try {
             ledcontrol = new LedControl();
         } catch (IOException e) {
@@ -34,6 +33,7 @@ public class NotificationLightsService extends NotificationListenerService {
             // here?
             System.exit(0);
         }
+        prefs = getSharedPreferences("nextlit", MODE_PRIVATE);
     }
 
     @Override
@@ -43,7 +43,6 @@ public class NotificationLightsService extends NotificationListenerService {
 
     @Override
     public void onNotificationPosted(StatusBarNotification sbn) {
-        Log.w("NEXTLIT", String.valueOf(enabled));
         if (enabled) {
             if (getActiveNotifications().length > 0) {
                 int pattern = prefs.getInt("predef_pattern", 0);  // get selected pattern from preferences
