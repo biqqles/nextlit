@@ -9,7 +9,7 @@ If you want to use the app for any more than just previewing the available patte
 
 Make sure to turn off battery pulse in Settings if your ROM supports it and you want to see the LEDs while charging.
 
-The app needs root in order to write to `/sys`. It'll work on the stock ROM and all LOS and AOSP -based ROMs, and *should* work on stock.
+The app needs root in order to write to `/sys`. It'll work on the stock ROM and all LOS and AOSP -based ROMs.
 
 ### To do
 - ‎custom patterns (I know how to do this, but needs testing)

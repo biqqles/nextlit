@@ -61,4 +61,16 @@
             tools:layout_editor_absoluteY="279dp" />
     </LinearLayout>
 
+    <Switch
+        android:id="@+id/showWhenScreenOn"
+        android:layout_width="264dp"
+        android:layout_height="23dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="60dp"
+        android:text="@string/show_when_screen_off"
+        app:layout_constraintEnd_toEndOf="@+id/linearLayout"
+        app:layout_constraintStart_toStartOf="@+id/linearLayout"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
+
 </android.support.constraint.ConstraintLayout>

@@ -90,6 +90,12 @@ class LedControl {
         }
     }
 
+    void clearAll() {
+        // Clears all leds: disables any predefined pattern and resets all engines.
+        clearPattern();
+        disableAllEngines();
+    }
+
     void setPattern(int pattern) {
         // Sets a predefined pattern (programmed by Nextbit in platform data).
         // For descriptions of the five patterns available, see arrays.xml.
@@ -107,15 +113,15 @@ class LedControl {
         }
     }
 
-    void clearPattern() {
-        // Clears current pattern and set all leds to LOW.
+    private void clearPattern() {
+        // Clears current pattern and sets all leds to LOW.
         echoToFile("0", PATTERN_FILE);
     }
 
     void setCustomPattern(Engine[] engines) {
         // Write and run a pattern using the "legacy" interface (the only one available on the Robin,
-        // though it seems to have some files related to the "new" interface
-        // Documentation: <<https://github.com/torvalds/linux/blob/master/Documentation/leds/leds-lp5523.txt>
+        // though it seems to have some files related to the "new" interface.
+        // Documentation: <https://github.com/torvalds/linux/blob/master/Documentation/leds/leds-lp5523.txt>
         disableAllEngines();
         for (Engine engine:engines) {
             String engine_mode = MessageFormat.format("engine{0}_mode", engine.number);
@@ -137,8 +143,8 @@ class LedControl {
         }
     }
 
-    void disableAllEngines() {
-        // Disable all engines
+    private void disableAllEngines() {
+        // Disables all engines.
         for (int i=1; i<4; i++) {
             echoToFile("disabled", MessageFormat.format("engine{0}_mode", i));
             // block for a bit, zooming through this seems to risk not resetting the engines fully
@@ -148,11 +154,10 @@ class LedControl {
                 e.printStackTrace();
             }
         }
-
     }
 
     private Process acquireRoot() {
-        // Create a Process with root privileges.
+        // Creates a Process with root privileges.
         // It's worth noting that writing / reading from files with root privileges can only be
         // done through shell commands, and not Java itself.
         try {

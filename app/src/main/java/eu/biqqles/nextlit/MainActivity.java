@@ -16,7 +16,6 @@ import android.provider.Settings;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -52,12 +51,12 @@ public class MainActivity extends AppCompatActivity {
 
         final Spinner patternSpinner = findViewById(R.id.patternSpinner);
         final ToggleButton previewButton = findViewById(R.id.previewButton);
+        final Switch showWhenScreenOn = findViewById(R.id.showWhenScreenOn);
 
         patternSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView adapterView, View view, int i, long l) {
                 previewButton.setChecked(false);
-                ledcontrol.clearPattern();
-                ledcontrol.disableAllEngines();
+                restoreLightsState();
                 if (i < 5) {
                     // predefined commands
                     // update preferences
@@ -65,17 +64,14 @@ public class MainActivity extends AppCompatActivity {
                     prefs.edit().putInt("predef_pattern", i + 1).apply();
                 } else {
                     // custom demonstration
-                    Log.e("NEXTLIT", String.valueOf(i - 5));
                     ledcontrol.setCustomPattern(ledcontrol.customPatterns[i - 5]);
                 }
             }
 
-            public void onNothingSelected(AdapterView<?> adapterView) {
-            }
+            public void onNothingSelected(AdapterView<?> adapterView) { }
         });
 
         patternSpinner.setSelection(prefs.getInt("predef_pattern", 1) - 1);
-
         previewButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton button, boolean checked) {
@@ -83,17 +79,26 @@ public class MainActivity extends AppCompatActivity {
                     String patternName = patternSpinner.getSelectedItem().toString();
                     int patternNumber = patternSpinner.getSelectedItemPosition();
 
-                    ledcontrol.clearPattern();
+                    ledcontrol.clearAll();
                     ledcontrol.setPattern(patternNumber + 1);
 
                     View view = findViewById(R.id.mainLayout);
                     Snackbar.make(view, "Previewing " + patternName, Snackbar.LENGTH_LONG).show();
                 } else {
-                    ledcontrol.clearPattern();
+                    restoreLightsState();
                 }
             }
         });
 
+        showWhenScreenOn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton button, boolean checked) {
+                prefs.edit().putBoolean("show_when_screen_on", checked).apply();
+                restoreLightsState();
+            }
+        });
+
+        showWhenScreenOn.setChecked(prefs.getBoolean("show_when_screen_on", false));
     }
 
     @Override
@@ -129,13 +134,22 @@ public class MainActivity extends AppCompatActivity {
                    NotificationLightsService.enabled = true;
                    Toast.makeText(MainActivity.this, "Service started", Toast.LENGTH_SHORT).show();
                } else {
-                   ledcontrol.clearPattern();
                    NotificationLightsService.enabled = false;
                    Toast.makeText(MainActivity.this, "Service stopped", Toast.LENGTH_SHORT).show();
                }
+               restoreLightsState();
            }
         });
        return super.onCreateOptionsMenu(menu);
+    }
+
+    void restoreLightsState() {
+        // Restores the "proper" state of the leds. Should be called after any setting which might
+        // require a change in their current visibility has been modified.
+        Intent serviceIntent = new Intent(this, NotificationLightsService.class);
+        serviceIntent.addCategory("restore_state");
+        startService(serviceIntent);
+        stopService(serviceIntent);
     }
 }
 
