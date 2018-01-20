@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">Nextlit</string>
     <string name="choose_pattern">CHOOSE A PATTERN:</string>
-    <string name="show_when_screen_off">SHOW WHEN SCREEN ON</string>
+    <string name="show_when_screen_on">SHOW WHEN SCREEN ON</string>
 </resources>

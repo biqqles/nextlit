@@ -62,9 +62,17 @@ public class NotificationLightsService extends NotificationListenerService {
     }
 
     void updateState() {
-        // Determines whether the lights should be enabled or disabled.
+        // Activates or deactivates the LEDs based on the present state.
         boolean showWhenScreenOn = prefs.getBoolean("show_when_screen_on", false);
-        if (getActiveNotifications().length > 0 && enabled && (!screenOn || showWhenScreenOn)) {
+
+        int notificationCount;
+        try {
+            notificationCount = getActiveNotifications().length;
+        } catch (NullPointerException e) {
+            return;  // service hasn't been initialised yet
+        }
+
+        if (notificationCount > 0 && enabled && (!screenOn || showWhenScreenOn)) {
             int pattern = prefs.getInt("predef_pattern", 0);  // get selected pattern from preferences
             // if pattern isn't set already, set it
             if (ledcontrol.getPattern() != pattern) {
