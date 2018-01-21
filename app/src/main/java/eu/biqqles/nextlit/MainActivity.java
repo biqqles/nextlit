@@ -30,8 +30,8 @@ import java.io.IOException;
 
 
 public class MainActivity extends AppCompatActivity {
-    LedControl ledcontrol;
-    SharedPreferences prefs;
+    private LedControl ledcontrol;
+    private SharedPreferences prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,6 +110,8 @@ public class MainActivity extends AppCompatActivity {
         item.setActionView(R.layout.actionbar_switch_layout);
         Switch serviceSwitch = item.getActionView().findViewById(R.id.serviceSwitch);
 
+        serviceSwitch.setChecked(prefs.getBoolean("service_enabled", false));
+
         serviceSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
            @Override
             public void onCheckedChanged(CompoundButton button, boolean checked) {
@@ -131,12 +133,12 @@ public class MainActivity extends AppCompatActivity {
                    in Notification access. Instead, we accept that the service will always run and
                    just modify a static flag that says if the lights should be enabled or not.
                    */
-                   NotificationLightsService.enabled = true;
                    Toast.makeText(MainActivity.this, "Service started", Toast.LENGTH_SHORT).show();
                } else {
-                   NotificationLightsService.enabled = false;
                    Toast.makeText(MainActivity.this, "Service stopped", Toast.LENGTH_SHORT).show();
                }
+
+               prefs.edit().putBoolean("service_enabled", checked).apply();
                restoreLightsState();
            }
         });

@@ -21,9 +21,8 @@ import android.service.notification.StatusBarNotification;
 import java.io.IOException;
 
 public class NotificationLightsService extends NotificationListenerService {
-    LedControl ledcontrol;
-    SharedPreferences prefs;
-    public static boolean enabled = false;
+    private LedControl ledcontrol;
+    private SharedPreferences prefs;
     private static boolean screenOn = true;
 
     @Override
@@ -63,6 +62,7 @@ public class NotificationLightsService extends NotificationListenerService {
 
     void updateState() {
         // Activates or deactivates the LEDs based on the present state.
+        boolean enabled = prefs.getBoolean("service_enabled", false);
         boolean showWhenScreenOn = prefs.getBoolean("show_when_screen_on", false);
 
         int notificationCount;
