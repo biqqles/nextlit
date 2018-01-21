@@ -13,4 +13,5 @@ The app needs root in order to write to `/sys`. It'll work on the stock ROM and 
 
 ### To do
 - ‎custom patterns (I know how to do this, but needs testing)
+- make service persistent between reboots
 - customisation: per-app patterns, ~~show only when screen off~~ [done], ‎app blacklist, etc.

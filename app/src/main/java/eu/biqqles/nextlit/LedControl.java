@@ -77,13 +77,15 @@ class LedControl {
 
     private static final String DEVICE = "/sys/class/leds/lp5523:channel0/device/";
     private static final String PATTERN_FILE = "led_pattern";
-    private Process su = acquireRoot();
+    private Process su;
 
     LedControl() throws IOException {
-        // cd to LP5523 (so from now on all paths will be relative to it)
+        su = acquireRoot();
+
+        // cd to device (so from now on all paths will be relative to it)
         execCommand(MessageFormat.format("cd {0}\n", DEVICE), false);
-        // Check we have access to /sys (and therefore indirectly that we have root access),
-        // otherwise throw an exception.
+
+        // check we have access to /sys (and therefore also that we have root access)
         String result = execCommand("ls\n", true);
         if (result == null) {
             throw new IOException();
@@ -156,15 +158,11 @@ class LedControl {
         }
     }
 
-    private Process acquireRoot() {
+    private Process acquireRoot() throws IOException {
         // Creates a Process with root privileges.
         // It's worth noting that writing / reading from files with root privileges can only be
         // done through shell commands, and not Java itself.
-        try {
-            return Runtime.getRuntime().exec("su");
-        } catch (IOException e) {
-            return null;
-        }
+        return Runtime.getRuntime().exec("su");
     }
 
     private void echoToFile(String data, String path) {
