@@ -63,7 +63,7 @@
 
     <Switch
         android:id="@+id/showWhenScreenOn"
-        android:layout_width="264dp"
+        android:layout_width="308dp"
         android:layout_height="24dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
@@ -72,5 +72,18 @@
         app:layout_constraintEnd_toEndOf="@+id/linearLayout"
         app:layout_constraintStart_toStartOf="@+id/linearLayout"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout" />
+
+    <Switch
+        android:id="@+id/showForOngoing"
+        android:layout_width="308dp"
+        android:layout_height="24dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/show_for_ongoing"
+        app:layout_constraintEnd_toEndOf="@+id/linearLayout"
+        app:layout_constraintHorizontal_bias="0.494"
+        app:layout_constraintStart_toStartOf="@+id/linearLayout"
+        app:layout_constraintTop_toBottomOf="@+id/showWhenScreenOn" />
 
 </android.support.constraint.ConstraintLayout>

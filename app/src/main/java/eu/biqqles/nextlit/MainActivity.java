@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
         final Spinner patternSpinner = findViewById(R.id.patternSpinner);
         final ToggleButton previewButton = findViewById(R.id.previewButton);
         final Switch showWhenScreenOn = findViewById(R.id.showWhenScreenOn);
+        final Switch showForOngoing = findViewById(R.id.showForOngoing);
 
         patternSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView adapterView, View view, int i, long l) {
@@ -90,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // when selected, this option will activate the lights while the screen is on
         showWhenScreenOn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton button, boolean checked) {
@@ -99,6 +101,17 @@ public class MainActivity extends AppCompatActivity {
         });
 
         showWhenScreenOn.setChecked(prefs.getBoolean("show_when_screen_on", false));
+
+        // when selected, this option will activate the lights for ongoing (persistent) notifications
+        showForOngoing.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton button, boolean checked) {
+                prefs.edit().putBoolean("show_for_ongoing", checked).apply();
+                restoreLightsState();
+            }
+        });
+
+        showForOngoing.setChecked(prefs.getBoolean("show_for_ongoing", false));
     }
 
     @Override

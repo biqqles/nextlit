@@ -64,15 +64,29 @@ public class NotificationLightsService extends NotificationListenerService {
         // Activates or deactivates the LEDs based on the present state.
         boolean enabled = prefs.getBoolean("service_enabled", false);
         boolean showWhenScreenOn = prefs.getBoolean("show_when_screen_on", false);
+        boolean showForOngoing = prefs.getBoolean("show_for_ongoing", false);
 
-        int notificationCount;
-        try {
-            notificationCount = getActiveNotifications().length;
-        } catch (NullPointerException e) {
+        boolean notificationsExist = false;
+
+        StatusBarNotification[] notifications = getActiveNotifications();
+        if (notifications == null) {
             return;  // service hasn't been initialised yet
         }
 
-        if (notificationCount > 0 && enabled && (!screenOn || showWhenScreenOn)) {
+        if (showForOngoing) {
+            notificationsExist = (notifications.length != 0);
+        } else {
+            // only "clearable" notifications should activate the lights
+            for(StatusBarNotification notification:notifications) {
+                if (notification.isClearable()) {
+                    notificationsExist = true;
+                    break;
+                }
+            }
+        }
+
+        if (notificationsExist && enabled && (!screenOn || showWhenScreenOn)) {
+            // activate the lights
             int pattern = prefs.getInt("predef_pattern", 0);  // get selected pattern from preferences
             // if pattern isn't set already, set it
             if (ledcontrol.getPattern() != pattern) {
