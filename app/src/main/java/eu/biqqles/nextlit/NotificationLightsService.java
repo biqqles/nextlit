@@ -77,6 +77,9 @@ public class NotificationLightsService extends NotificationListenerService {
             notificationsExist = (notifications.length != 0);
         } else {
             // only "clearable" notifications should activate the lights
+            // [really we should check for DEFAULT_LIGHTS or FLAG_SHOW_LIGHTS, but not sure if possible:
+            // bitwise OR is a lossy operation. shouldShowLights() provides this functionality but
+            // was only added in Oreo]
             for(StatusBarNotification notification:notifications) {
                 if (notification.isClearable()) {
                     notificationsExist = true;
