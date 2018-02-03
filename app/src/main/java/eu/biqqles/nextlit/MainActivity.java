@@ -121,16 +121,13 @@ public class MainActivity extends AppCompatActivity {
 
         serviceSwitch.setChecked(prefs.getBoolean("service_enabled", false));
 
+        // this switch enables and disables the notification service
         serviceSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
            @Override
             public void onCheckedChanged(CompoundButton button, boolean checked) {
                if (checked) {
                    // take user to Notification access if they haven't enabled the service already
-                   String enabledNotificationListeners = Settings.Secure.getString(
-                           getContentResolver(), "enabled_notification_listeners");
-
-                   if (enabledNotificationListeners == null
-                           || !enabledNotificationListeners.contains(getPackageName())) {
+                   if (!serviceBound()) {
                        startActivity(new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS));
                        Toast.makeText(MainActivity.this, "Enable Nextlit", Toast.LENGTH_SHORT).show();
                    }
@@ -157,10 +154,23 @@ public class MainActivity extends AppCompatActivity {
     void restoreLightsState() {
         // Restores the "proper" state of the leds. Should be called after any setting which might
         // require a change in their current visibility has been modified.
-        Intent serviceIntent = new Intent(this, NotificationLightsService.class);
-        serviceIntent.addCategory("restore_state");
-        startService(serviceIntent);
-        stopService(serviceIntent);
+        if (serviceBound()) {
+            Intent serviceIntent = new Intent(this, NotificationLightsService.class);
+            serviceIntent.addCategory("restore_state");
+            startService(serviceIntent);
+            stopService(serviceIntent);
+        } else {
+            ledcontrol.clearAll();
+        }
+    }
+
+    boolean serviceBound() {
+        // Reports whether the notification service has been bound (i.e. activated).
+        String enabledNotificationListeners = Settings.Secure.getString(getContentResolver(),
+                "enabled_notification_listeners");
+
+        return !(enabledNotificationListeners == null ||
+                !enabledNotificationListeners.contains(getPackageName()));
     }
 }
 
