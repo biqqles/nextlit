@@ -22,6 +22,7 @@ import java.io.IOException;
 
 public class NotificationLightsService extends NotificationListenerService {
     private LedControl ledcontrol;
+    private BroadcastReceiver screenReceiver;
     private SharedPreferences prefs;
     private static boolean screenOn = true;
 
@@ -43,7 +44,7 @@ public class NotificationLightsService extends NotificationListenerService {
         screenStateFilter.addAction(Intent.ACTION_SCREEN_ON);
         screenStateFilter.addAction(Intent.ACTION_SCREEN_OFF);
 
-        registerReceiver(new BroadcastReceiver() {
+        screenReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
@@ -56,8 +57,15 @@ public class NotificationLightsService extends NotificationListenerService {
                 }
                 updateState();
             }
-        },
-                screenStateFilter);
+        };
+
+        registerReceiver(screenReceiver, screenStateFilter);
+    }
+
+    @Override
+    public void onDestroy() {
+        unregisterReceiver(screenReceiver);
+        super.onDestroy();
     }
 
     void updateState() {
@@ -102,8 +110,13 @@ public class NotificationLightsService extends NotificationListenerService {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        // Handle instructions in the form of Intent categories passed with startService().
+        // This is the only way to communicate with (i.e. call methods from) the service from the app
+        // activity.
         if (intent != null) {
             if (intent.hasCategory("restore_state")) {
+                // used to restore the "proper" state of the leds after it has been manually changed,
+                // e.g. after previewing a pattern
                 updateState();
             }
         }
