@@ -8,7 +8,9 @@
         <item>Oscillate</item>
         <item>Twinkle</item>
         <!--Descriptions for custom pattern demonstrations-->
-        <!--<item>[Demo] Loading</item>-->
-        <!--<item>[Demo] Breathing</item>-->
+        <item>(Demo) Loading</item>
+        <item>(Demo) Breathing</item>
+        <item>(Demo) Pulse</item>
+        <item>(Demo) Bounce</item>
     </string-array>
 </resources>

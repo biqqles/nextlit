@@ -45,7 +45,10 @@ public class MainActivity extends AppCompatActivity {
         try {
             ledcontrol = new LedControl();
         } catch (IOException e) {
+            // root access denied/unavailable
             Toast.makeText(this, "App requires root access, closing", Toast.LENGTH_LONG).show();
+            // prevent the service from constantly trying to restart itself if already enabled
+            prefs.edit().putBoolean("service_enabled", false).apply();
             finish();
         }
 
@@ -58,21 +61,14 @@ public class MainActivity extends AppCompatActivity {
             public void onItemSelected(AdapterView adapterView, View view, int i, long l) {
                 previewButton.setChecked(false);
                 restoreLightsState();
-                if (i < 5) {
-                    // predefined commands
-                    // update preferences
-                    // (spinner index starts at 0 but patterns start at 1 (0 = clear))
-                    prefs.edit().putInt("predef_pattern", i + 1).apply();
-                } else {
-                    // custom demonstration
-                    ledcontrol.setCustomPattern(ledcontrol.customPatterns[i - 5]);
-                }
+                // update preferences (spinner index starts at 0 but patterns start at 1 (0 = clear))
+                prefs.edit().putInt("pattern", i + 1).apply();
             }
 
             public void onNothingSelected(AdapterView<?> adapterView) { }
         });
 
-        patternSpinner.setSelection(prefs.getInt("predef_pattern", 1) - 1);
+        patternSpinner.setSelection(prefs.getInt("pattern", 1) - 1);
         previewButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton button, boolean checked) {

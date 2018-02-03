@@ -98,9 +98,9 @@ public class NotificationLightsService extends NotificationListenerService {
 
         if (notificationsExist && enabled && (!screenOn || showWhenScreenOn)) {
             // activate the lights
-            int pattern = prefs.getInt("predef_pattern", 0);  // get selected pattern from preferences
-            // if pattern isn't set already, set it
-            if (ledcontrol.getPattern() != pattern) {
+            int pattern = prefs.getInt("pattern", 0);  // get selected pattern from preferences
+            // if a pattern isn't running, start one
+            if (!ledcontrol.patternActive()) {
                 ledcontrol.setPattern(pattern);
             }
         } else {

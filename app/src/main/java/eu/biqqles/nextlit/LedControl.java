@@ -23,13 +23,13 @@ class LedControl {
     class Engine {
         /*
         The LP5523 has three "engines", which can each manage some of the four leds available.
-        Each engine runs a sequence of microcode instructions, usually (but not necessarily) in an
-        infinite loop. These instructions control the brightness of the leds managed by the engine over
-        time. Multiple engines can run concurrently (at least with the "new" interface), and this can be
-        used to create more complex visuals. For the purposes of this program, a "pattern" is an array
-        of engines, working together in this way.
+        Each engine runs a sequence of instructions, usually (but not necessarily) in an infinite
+        loop. These instructions control the brightness of the leds managed by the engine over time.
+        Multiple engines can run concurrently (at least with the "new" interface), and this can be
+        used to create more complex visuals. For the purposes of this program, a "pattern" is an
+        array of engines, working together in this way.
         */
-        Engine(int number, String leds, String microcode) {
+        Engine(int number, String leds, String instructions) {
             /*
             the engine number, 1-3
             */
@@ -49,29 +49,30 @@ class LedControl {
                 9d0x -- select led to be controlled (where x is count of the led in mux)
             A maximum of 16 instructions (kernel limitation, hardware can store up to 96)
 
-            This class allows microcode instructions to be separated with _ for readability
+            This class allows instructions to be separated with _ for readability
             */
-            this.microcode = microcode.replace("_", "");
+            this.instructions = instructions.replace("_", "");
         }
 
         final int number;
         final String leds;
-        final String microcode;
+        final String instructions;
     }
 
-
-    final Engine[][] customPatterns = {
+    // define some custom patterns
+    private final Engine[][] customPatterns = {
             // loading
-            {new Engine(2, "1111", "9d80" +
-                    "9d04_04ff_9d03_04ff_9d02_04ff_9d01_04ff" +  // light sequentially
-                    "05ff_9d02_05ff_9d03_05ff_9d04_03ff")},  // dim sequentially
+            {new Engine(2, "1111", "9d80_9d04_04ff_9d03_04ff_9d02_04ff_9d01_04ff" +
+                                                            "05ff_9d02_05ff_9d03_05ff_9d04_03ff")},
 
             // breathing
             {new Engine(2, "1111", "9d80_10ff_11ff_0000")},
 
-            // running multiple engines _works_, but the behaviour is very odd...
-            {new Engine(3, "0110", "9d80_30ff_3100_0000"),
-             new Engine(2, "1001", "9d80_4000_10ee_0000")}
+            // pulse
+            {new Engine(2, "1111", "9d80_12ff_13dc_0000")},
+
+            // bounce
+            {new Engine(2, "1111", "9d80_16ff_05cc_40ff_05cc_0000")},
     };
 
 
@@ -81,80 +82,83 @@ class LedControl {
 
     LedControl() throws IOException {
         su = acquireRoot();
-
         // cd to device (so from now on all paths will be relative to it)
         execCommand(MessageFormat.format("cd {0}\n", DEVICE), false);
-
-        // check we have access to /sys (and therefore also that we have root access)
+        // Check we have access to /sys (and therefore also that we have root access), otherwise
+        // throw an exception
         String result = execCommand("ls\n", true);
         if (result == null) {
             throw new IOException();
         }
     }
 
-    void clearAll() {
-        // Clears all leds: disables any predefined pattern and resets all engines.
-        clearPattern();
-        disableAllEngines();
-    }
-
     void setPattern(int pattern) {
-        // Sets a predefined pattern (programmed by Nextbit in platform data).
-        // For descriptions of the five patterns available, see arrays.xml.
-        clearPattern();
-        echoToFile(Integer.toString(pattern), PATTERN_FILE);
-    }
-
-    int getPattern() {
-        // Gets the currently set pattern.
-        String cmd = MessageFormat.format("cat {0}\n", PATTERN_FILE);
-        try {
-            return Integer.parseInt(execCommand(cmd, true));
-        } catch (NumberFormatException e) {
-            return 0;
+        // Sets (executes) a given pattern.
+        // A pattern between 0 and 5 inclusive represents a predefined pattern held in platform data.
+        // A pattern above 5 represents "custom" pattern defined by the app, held in this.customPatterns.
+        clearAll();
+        if (pattern < 6) {
+            setPredefPattern(pattern);
+        } else {
+            setCustomPattern(customPatterns[pattern - 6]);
         }
     }
 
-    private void clearPattern() {
+    boolean patternActive() {
+        // Check if a pattern (predefined or custom) is currently running.
+        String cat = "cat {0}\n";
+
+        // check engines
+        for (int i=1; i<4; i++) {
+            String engine_mode = MessageFormat.format("engine{0}_mode", i);
+            String contents = execCommand(MessageFormat.format(cat, engine_mode), true);
+            if (contents.equals("run")) {
+                return true;
+            }
+        }
+        // check led_pattern
+        return !execCommand(MessageFormat.format(cat, PATTERN_FILE), true).equals("0");
+    }
+
+    void clearAll() {
+        // Clears all leds: disables any predefined pattern and resets all engines.
+        clearPredefPattern();
+        disableAllEngines();
+    }
+
+    private void setPredefPattern(int pattern) {
+        // Sets a predefined pattern (programmed by Nextbit in platform data).
+        // For descriptions of the five patterns available, see arrays.xml.
+        echoToFile(Integer.toString(pattern), PATTERN_FILE);
+    }
+
+    private void clearPredefPattern() {
         // Clears current pattern and sets all leds to LOW.
         echoToFile("0", PATTERN_FILE);
     }
 
-    void setCustomPattern(Engine[] engines) {
+    private void setCustomPattern(Engine[] engines) {
         // Write and run a pattern using the "legacy" interface (the only one available on the Robin,
         // though it seems to have some files related to the "new" interface.
         // Documentation: <https://github.com/torvalds/linux/blob/master/Documentation/leds/leds-lp5523.txt>
-        disableAllEngines();
-        for (Engine engine:engines) {
-            String engine_mode = MessageFormat.format("engine{0}_mode", engine.number);
-            String engine_load = MessageFormat.format("engine{0}_load", engine.number);
-            String engine_leds = MessageFormat.format("engine{0}_leds", engine.number);
 
-            // may be causing odd timing issues, but suggested in leds-lp55xx.txt
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        // currently restricted to single engine mode:
+        Engine engine = engines[0];
 
-            echoToFile("load", engine_mode); // freezes pwm and execution
-            // datasheet suggests 1 ms pause here, unless driver does that
-            echoToFile(engine.microcode, engine_load);
-            echoToFile(engine.leds, engine_leds);
-            echoToFile("run", engine_mode);  // or disabled here, then run in another loop
-        }
+        String engine_mode = MessageFormat.format("engine{0}_mode", engine.number);
+        String engine_load = MessageFormat.format("engine{0}_load", engine.number);
+        String engine_leds = MessageFormat.format("engine{0}_leds", engine.number);
+
+        echoToFile("load", engine_mode);  // freezes pwm and execution
+        echoToFile(engine.instructions, engine_load);
+        echoToFile(engine.leds, engine_leds);
+        echoToFile("run", engine_mode);
     }
 
     private void disableAllEngines() {
-        // Disables all engines.
+        // Disables (stops) all engines.
         for (int i=1; i<4; i++) {
             echoToFile("disabled", MessageFormat.format("engine{0}_mode", i));
-            // block for a bit, zooming through this seems to risk not resetting the engines fully
-            try {
-                Thread.sleep(50);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
         }
     }
 
