@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Icons from <https://material.io/icons/>, used with gratitude under the Apache License
-    Version 2.0. Converted to xml with <https://inloop.github.io/svg2android/> by Juraj Novák-->
+    <!-- Icons from <https://material.io/icons/>, licensed under Apache License Version 2.0.-->
     <item android:drawable="@drawable/ic_visibility_off" android:state_checked="true" />
     <item android:drawable="@drawable/ic_visibility" android:state_checked="false"/>
 </selector>
