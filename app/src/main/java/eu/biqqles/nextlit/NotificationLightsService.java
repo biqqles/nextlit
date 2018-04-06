@@ -9,11 +9,14 @@
 
 package eu.biqqles.nextlit;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.IBinder;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
@@ -23,6 +26,7 @@ import java.io.IOException;
 public class NotificationLightsService extends NotificationListenerService {
     private LedControl ledcontrol;
     private BroadcastReceiver screenReceiver;
+    private NotificationManager manager;
     private SharedPreferences prefs;
     private static boolean screenOn = true;
 
@@ -36,6 +40,9 @@ public class NotificationLightsService extends NotificationListenerService {
             // here?
             System.exit(0);
         }
+
+        NotificationManager manager = (NotificationManager) getApplicationContext()
+                .getSystemService(Context.NOTIFICATION_SERVICE);
 
         prefs = getSharedPreferences("nextlit", MODE_PRIVATE);
 
@@ -69,12 +76,13 @@ public class NotificationLightsService extends NotificationListenerService {
     }
 
     void updateState() {
+        //ledcontrol.setPattern(5);
         // Activates or deactivates the LEDs based on the present state.
         boolean enabled = prefs.getBoolean("service_enabled", false);
         boolean showWhenScreenOn = prefs.getBoolean("show_when_screen_on", false);
         boolean showForOngoing = prefs.getBoolean("show_for_ongoing", false);
 
-        boolean notificationsExist = false;
+        boolean notifyRequired = false;
 
         StatusBarNotification[] notifications = getActiveNotifications();
         if (notifications == null) {
@@ -82,21 +90,32 @@ public class NotificationLightsService extends NotificationListenerService {
         }
 
         if (showForOngoing) {
-            notificationsExist = (notifications.length != 0);
+            notifyRequired = (notifications.length > 0);
         } else {
-            // only "clearable" notifications should activate the lights
-            // [really we should check for DEFAULT_LIGHTS or FLAG_SHOW_LIGHTS, but not sure if possible:
-            // bitwise OR is a lossy operation. shouldShowLights() provides this functionality but
-            // was only added in Oreo]
+            // by default, only "clearable" notifications should activate the lights: with Oreo
+            // (API 27) we can do one better and actually discover if a notification should activate
+            // the standard notification LED, and mirror that behaviour
             for(StatusBarNotification notification:notifications) {
-                if (notification.isClearable()) {
-                    notificationsExist = true;
+                boolean notificationShowsLights = notification.isClearable();
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    if (manager != null) {
+                        NotificationChannel channel = manager.getNotificationChannel(
+                                notification.getNotification().getChannelId());
+                        if (channel != null) {
+                            notificationShowsLights = channel.shouldShowLights();
+                        }
+                    }
+                }
+
+                if (notificationShowsLights) {
+                    notifyRequired = true;
                     break;
                 }
             }
         }
 
-        if (notificationsExist && enabled && (!screenOn || showWhenScreenOn)) {
+        if (notifyRequired && enabled && (!screenOn || showWhenScreenOn)) {
             // activate the lights
             int pattern = prefs.getInt("pattern", 0);  // get selected pattern from preferences
             // if a pattern isn't running, start one
