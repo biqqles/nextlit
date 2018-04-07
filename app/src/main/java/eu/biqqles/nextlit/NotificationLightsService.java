@@ -28,6 +28,7 @@ public class NotificationLightsService extends NotificationListenerService {
     private BroadcastReceiver screenReceiver;
     private NotificationManager manager;
     private SharedPreferences prefs;
+
     private static boolean screenOn = true;
 
     @Override
@@ -41,8 +42,7 @@ public class NotificationLightsService extends NotificationListenerService {
             System.exit(0);
         }
 
-        NotificationManager manager = (NotificationManager) getApplicationContext()
-                .getSystemService(Context.NOTIFICATION_SERVICE);
+        manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
         prefs = getSharedPreferences("nextlit", MODE_PRIVATE);
 
@@ -93,15 +93,15 @@ public class NotificationLightsService extends NotificationListenerService {
             notifyRequired = (notifications.length > 0);
         } else {
             // by default, only "clearable" notifications should activate the lights: with Oreo
-            // (API 27) we can do one better and actually discover if a notification should activate
+            // (API 26) we can do one better and actually discover if a notification should activate
             // the standard notification LED, and mirror that behaviour
             for(StatusBarNotification notification:notifications) {
                 boolean notificationShowsLights = notification.isClearable();
 
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    String channelId = notification.getNotification().getChannelId();
                     if (manager != null) {
-                        NotificationChannel channel = manager.getNotificationChannel(
-                                notification.getNotification().getChannelId());
+                        NotificationChannel channel = manager.getNotificationChannel(channelId);
                         if (channel != null) {
                             notificationShowsLights = channel.shouldShowLights();
                         }
@@ -119,9 +119,9 @@ public class NotificationLightsService extends NotificationListenerService {
             // activate the lights
             int pattern = prefs.getInt("pattern", 0);  // get selected pattern from preferences
             // if a pattern isn't running, start one
-            if (!ledcontrol.patternActive()) {
+            //if (!ledcontrol.patternActive()) {
                 ledcontrol.setPattern(pattern);
-            }
+            //}
         } else {
             ledcontrol.clearAll();
         }
