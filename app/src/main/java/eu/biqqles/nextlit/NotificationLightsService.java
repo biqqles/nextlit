@@ -76,8 +76,8 @@ public class NotificationLightsService extends NotificationListenerService {
     }
 
     void updateState() {
-        //ledcontrol.setPattern(5);
-        // Activates or deactivates the LEDs based on the present state.
+        // Decides whether the user needs to be notified and activates or deactivates the LEDs
+        // accordingly.
         boolean enabled = prefs.getBoolean("service_enabled", false);
         boolean showWhenScreenOn = prefs.getBoolean("show_when_screen_on", false);
         boolean showForOngoing = prefs.getBoolean("show_for_ongoing", false);
@@ -119,9 +119,9 @@ public class NotificationLightsService extends NotificationListenerService {
             // activate the lights
             int pattern = prefs.getInt("pattern", 0);  // get selected pattern from preferences
             // if a pattern isn't running, start one
-            //if (!ledcontrol.patternActive()) {
+            if (pattern > 5 || ledcontrol.getPredefPattern() != pattern) {
                 ledcontrol.setPattern(pattern);
-            //}
+            }
         } else {
             ledcontrol.clearAll();
         }
