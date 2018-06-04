@@ -14,11 +14,8 @@
    viewBox="0 0 576 576"
    id="svg2"
    version="1.1"
-   inkscape:version="0.91 r13725"
-   sodipodi:docname="icon.svg"
-   inkscape:export-filename="/home/james/Documents/Projects/nextlit/icon.png"
-   inkscape:export-xdpi="90"
-   inkscape:export-ydpi="90">
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"
+   sodipodi:docname="icon.svg">
   <defs
      id="defs4">
     <clipPath
@@ -42,94 +39,6 @@
          cy="764.11218"
          r="288" />
     </clipPath>
-    <clipPath
-       clipPathUnits="userSpaceOnUse"
-       id="clipPath4179">
-      <ellipse
-         style="fill:none;fill-opacity:1;stroke:none;stroke-width:0.50975984;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         id="ellipse4181"
-         cx="288"
-         cy="764.36218"
-         rx="287.74515"
-         ry="287.74512" />
-    </clipPath>
-    <clipPath
-       clipPathUnits="userSpaceOnUse"
-       id="clipPath4183">
-      <ellipse
-         style="fill:none;fill-opacity:1;stroke:none;stroke-width:0.50975984;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         id="ellipse4185"
-         cx="288"
-         cy="764.36218"
-         rx="287.74515"
-         ry="287.74512" />
-    </clipPath>
-    <clipPath
-       clipPathUnits="userSpaceOnUse"
-       id="clipPath4187">
-      <ellipse
-         style="fill:none;fill-opacity:1;stroke:none;stroke-width:0.50975984;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         id="ellipse4189"
-         cx="288"
-         cy="764.36218"
-         rx="287.74515"
-         ry="287.74512" />
-    </clipPath>
-    <clipPath
-       clipPathUnits="userSpaceOnUse"
-       id="clipPath4191">
-      <ellipse
-         style="fill:none;fill-opacity:1;stroke:none;stroke-width:0.50975984;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         id="ellipse4193"
-         cx="288"
-         cy="764.36218"
-         rx="287.74515"
-         ry="287.74512" />
-    </clipPath>
-    <clipPath
-       clipPathUnits="userSpaceOnUse"
-       id="clipPath4195">
-      <ellipse
-         style="fill:none;fill-opacity:1;stroke:none;stroke-width:0.50975984;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         id="ellipse4197"
-         cx="288"
-         cy="764.36218"
-         rx="287.74515"
-         ry="287.74512" />
-    </clipPath>
-    <clipPath
-       clipPathUnits="userSpaceOnUse"
-       id="clipPath4199">
-      <ellipse
-         style="fill:none;fill-opacity:1;stroke:none;stroke-width:0.50975984;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         id="ellipse4201"
-         cx="288"
-         cy="764.36218"
-         rx="287.74515"
-         ry="287.74512" />
-    </clipPath>
-    <clipPath
-       clipPathUnits="userSpaceOnUse"
-       id="clipPath4203">
-      <ellipse
-         style="fill:none;fill-opacity:1;stroke:none;stroke-width:0.50975984;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         id="ellipse4205"
-         cx="288"
-         cy="764.36218"
-         rx="287.74515"
-         ry="287.74512" />
-    </clipPath>
-    <clipPath
-       clipPathUnits="userSpaceOnUse"
-       id="clipPath4207">
-      <ellipse
-         style="fill:none;fill-opacity:1;stroke:none;stroke-width:0.50975984;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-         id="ellipse4209"
-         cx="288"
-         cy="764.36218"
-         rx="287.74515"
-         ry="287.74512" />
-    </clipPath>
   </defs>
   <sodipodi:namedview
      id="base"
@@ -139,17 +48,17 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.70710678"
-     inkscape:cx="648.4514"
-     inkscape:cy="145.19707"
+     inkscape:cx="736.14802"
+     inkscape:cy="352.6114"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      units="px"
      width="576px"
      inkscape:window-width="2560"
-     inkscape:window-height="997"
+     inkscape:window-height="1026"
      inkscape:window-x="1920"
-     inkscape:window-y="0"
+     inkscape:window-y="29"
      inkscape:window-maximized="1" />
   <metadata
      id="metadata7">
@@ -169,12 +78,19 @@
      id="layer1"
      transform="translate(0,-476.3622)">
     <circle
-       style="fill:#fdffff;fill-opacity:1;stroke:#000000;stroke-width:1.0163852;stroke-opacity:1"
+       style="fill:#fdffff;fill-opacity:1;stroke:none;stroke-width:1.0163852;stroke-opacity:1"
        id="path4979"
        cx="287.85715"
        cy="764.64795"
        r="287.49182"
-       clip-path="url(#clipPath4207)" />
+       clip-path="none" />
+    <ellipse
+       ry="287.74512"
+       rx="287.74515"
+       cy="764.36218"
+       cx="288"
+       id="ellipse4209"
+       style="fill:none;fill-opacity:1;stroke:none;stroke-width:0.50975984;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <rect
        style="fill:#fdfdfd;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1.53924274px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        id="rect4966"
@@ -182,23 +98,44 @@
        height="576"
        x="0.10958955"
        y="476.36221"
-       clip-path="url(#clipPath4203)" />
+       clip-path="none" />
+    <ellipse
+       ry="287.74512"
+       rx="287.74515"
+       cy="764.36218"
+       cx="288"
+       id="ellipse4205"
+       style="fill:none;fill-opacity:1;stroke:none;stroke-width:0.50975984;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <rect
-       style="fill:#60e5d3;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:0.44343896"
+       style="fill:#83e5db;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:0.44343896"
        id="rect3338"
        width="576"
        height="164"
        x="0.43709961"
        y="476.44247"
-       clip-path="url(#clipPath4199)" />
+       clip-path="none" />
+    <ellipse
+       ry="287.74512"
+       rx="287.74515"
+       cy="764.36218"
+       cx="288"
+       id="ellipse4201"
+       style="fill:none;fill-opacity:1;stroke:none;stroke-width:0.50975984;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <rect
-       style="fill:#60e5d3;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       style="fill:#87e5db;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        id="rect3338-3"
        width="576"
        height="164"
        x="-7.390976e-06"
        y="888.12518"
-       clip-path="url(#clipPath4195)" />
+       clip-path="none" />
+    <ellipse
+       ry="287.74512"
+       rx="287.74515"
+       cy="764.36218"
+       cx="288"
+       id="ellipse4197"
+       style="fill:none;fill-opacity:1;stroke:none;stroke-width:0.50975984;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        style="fill:#dbdbdb;fill-opacity:1;stroke:none"
        id="path4176"
@@ -206,7 +143,14 @@
        cy="762.41211"
        rx="24.982967"
        ry="25"
-       clip-path="url(#clipPath4191)" />
+       clip-path="none" />
+    <ellipse
+       ry="287.74512"
+       rx="287.74515"
+       cy="764.36218"
+       cx="288"
+       id="ellipse4193"
+       style="fill:none;fill-opacity:1;stroke:none;stroke-width:0.50975984;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        style="fill:#dbdbdb;fill-opacity:1;stroke:none"
        id="path4176-6"
@@ -214,7 +158,14 @@
        cy="762.41211"
        rx="24.982967"
        ry="25"
-       clip-path="url(#clipPath4187)" />
+       clip-path="none" />
+    <ellipse
+       ry="287.74512"
+       rx="287.74515"
+       cy="764.36218"
+       cx="288"
+       id="ellipse4189"
+       style="fill:none;fill-opacity:1;stroke:none;stroke-width:0.50975984;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        style="fill:#dbdbdb;fill-opacity:1;stroke:none"
        id="path4176-6-7"
@@ -222,7 +173,14 @@
        cy="762.41211"
        rx="24.982967"
        ry="25"
-       clip-path="url(#clipPath4183)" />
+       clip-path="none" />
+    <ellipse
+       ry="287.74512"
+       rx="287.74515"
+       cy="764.36218"
+       cx="288"
+       id="ellipse4185"
+       style="fill:none;fill-opacity:1;stroke:none;stroke-width:0.50975984;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
     <ellipse
        style="fill:#dbdbdb;fill-opacity:1;stroke:none"
        id="path4176-6-7-3"
@@ -230,6 +188,13 @@
        cy="762.41211"
        rx="24.982967"
        ry="25"
-       clip-path="url(#clipPath4179)" />
+       clip-path="none" />
+    <ellipse
+       ry="287.74512"
+       rx="287.74515"
+       cy="764.36218"
+       cx="288"
+       id="ellipse4181"
+       style="fill:none;fill-opacity:1;stroke:none;stroke-width:0.50975984;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
   </g>
 </svg>
