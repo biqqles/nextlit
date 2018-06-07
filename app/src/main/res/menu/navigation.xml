@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_behaviour"
+            android:icon="@drawable/ic_settings"
+            android:title="@string/behaviour" />
+        <item
+            android:id="@+id/nav_per_app"
+            android:icon="@drawable/ic_apps"
+            android:title="@string/per_app_settings" />
+    </group>
+</menu>

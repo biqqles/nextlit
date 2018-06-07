@@ -1,6 +1,16 @@
 <resources>
     <string name="app_name">Nextlit</string>
-    <string name="choose_pattern">CHOOSE A PATTERN:</string>
-    <string name="show_when_screen_on">SHOW WHEN SCREEN ON</string>
-    <string name="show_for_ongoing">SHOW FOR ONGOING NOTIFICATIONS</string>
+    <string name="choose_pattern">Select pattern</string>
+    <string name="per_app_settings">Per-app settings</string>
+    <string name="behaviour">Notification behaviour</string>
+    <string name="show_when_screen_on">Show when screen on</string>
+    <string name="show_for_ongoing">Show for ongoing notifications</string>
+    <string name="nav_header_title">Nextlit 💡</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_subtitle">Service disabled</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="preview">Preview</string>
+    <string name="service_enabled">Service enabled</string>
+    <string name="service_disabled">Service disabled</string>
 </resources>

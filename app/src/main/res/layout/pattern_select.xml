@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/patternLayout"
+    android:layout_width="fill_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center_vertical"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="0.48"
+    app:layout_constraintStart_toStartOf="parent"
+    tools:showIn="@layout/content_main">
+
+    <Spinner
+        android:id="@+id/patternSpinner"
+        android:layout_toStartOf="@+id/previewButton"
+        android:layout_width="fill_parent"
+        android:layout_height="37dp"
+        android:backgroundTint="@android:color/darker_gray"
+        android:entries="@array/patternSpinnerItems" />
+
+    <ToggleButton
+        android:id="@+id/previewButton"
+        android:layout_width="56dp"
+        android:layout_height="match_parent"
+        android:background="@android:color/transparent"
+        android:button="@drawable/visibility"
+        android:text=""
+        android:textOff=""
+        android:textOn=""
+        android:gravity="center_horizontal|top"
+        android:layout_alignParentEnd="true"
+        tools:layout_editor_absoluteY="279dp" />
+</RelativeLayout>

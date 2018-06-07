@@ -13,23 +13,28 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.CompoundButton;
 import android.widget.Spinner;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import java.io.IOException;
 
+public class MainActivity extends AppCompatActivity
+        implements NavigationView.OnNavigationItemSelectedListener {
 
-public class MainActivity extends AppCompatActivity {
     private LedControl ledcontrol;
     private SharedPreferences prefs;
 
@@ -46,23 +51,66 @@ public class MainActivity extends AppCompatActivity {
             ledcontrol = new LedControl();
         } catch (IOException e) {
             // root access denied/unavailable
-            Toast.makeText(this, "App requires root access, closing", Toast.LENGTH_LONG).show();
-            // prevent the service from constantly trying to restart itself if already enabled
-            prefs.edit().putBoolean("service_enabled", false).apply();
-            finish();
+            rootDenied();
         }
 
-        final Spinner patternSpinner = findViewById(R.id.patternSpinner);
-        final ToggleButton previewButton = findViewById(R.id.previewButton);
-        final Switch showWhenScreenOn = findViewById(R.id.showWhenScreenOn);
-        final Switch showForOngoing = findViewById(R.id.showForOngoing);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
+        // add listener to start/stop service when switch toggled
+        final View header = navigationView.getHeaderView(0);
+        final Switch serviceSwitch = header.findViewById(R.id.serviceSwitch);
+        final Spinner patternSpinner = header.findViewById(R.id.patternSpinner);
+        final ToggleButton previewButton = header.findViewById(R.id.previewButton);
+        final TextView subtitle = header.findViewById(R.id.nav_header_subtitle);
+
+        // this switch enables and disables the notification service
+        serviceSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton button, boolean checked) {
+                String statusText;
+
+                if (checked) {
+                    // take user to Notification access if they haven't enabled the service already
+                    if (!serviceBound()) {
+                        startActivity(new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS));
+                        Toast.makeText(MainActivity.this, "Enable Nextlit", Toast.LENGTH_SHORT).show();
+                    }
+
+                    /*
+                    Normal procedure here would be to call start/stopService, but for whatever reason
+                    Android ignores these calls for NotificationListenerServices, and so effectively
+                    the only thing that governs whether a service is enabled or not is if it's enabled
+                    in Notification access. Instead, we accept that the service will always run and
+                    just modify a static flag that says if the lights should be enabled or not.
+                    */
+                    statusText = getResources().getString(R.string.service_enabled);
+                } else {
+                    statusText = getResources().getString(R.string.service_disabled);
+                }
+
+                Toast.makeText(MainActivity.this, statusText, Toast.LENGTH_SHORT).show();
+                subtitle.setText(statusText);
+
+                prefs.edit().putBoolean("service_enabled", checked).apply();
+                restoreLightsState();
+            }
+        });
+
+        serviceSwitch.setChecked(prefs.getBoolean("service_enabled", false));
 
         patternSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView adapterView, View view, int i, long l) {
+                // halt preview and update perferences
                 previewButton.setChecked(false);
                 restoreLightsState();
-                // update preferences (spinner index starts at 0 but patterns start at 1 (0 = clear))
-                prefs.edit().putInt("pattern", i + 1).apply();
+                prefs.edit().putInt("pattern", i).apply();
             }
 
             public void onNothingSelected(AdapterView<?> adapterView) { }
@@ -77,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
                     int patternNumber = patternSpinner.getSelectedItemPosition();
 
                     ledcontrol.clearAll();
-                    ledcontrol.setPattern(patternNumber + 1);
+                    ledcontrol.setPattern(patternNumber);
 
                     View view = findViewById(R.id.mainLayout);
                     Snackbar.make(view, "Previewing " + patternName, Snackbar.LENGTH_LONG).show();
@@ -86,72 +134,43 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
-        // when selected, this option will activate the lights while the screen is on
-        showWhenScreenOn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton button, boolean checked) {
-                prefs.edit().putBoolean("show_when_screen_on", checked).apply();
-                restoreLightsState();
-            }
-        });
-
-        showWhenScreenOn.setChecked(prefs.getBoolean("show_when_screen_on", false));
-
-        // when selected, this option will activate the lights for ongoing (persistent) notifications
-        showForOngoing.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton button, boolean checked) {
-                prefs.edit().putBoolean("show_for_ongoing", checked).apply();
-                restoreLightsState();
-            }
-        });
-
-        showForOngoing.setChecked(prefs.getBoolean("show_for_ongoing", false));
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-
-        // add listener to start/stop service when switch toggled
-        final MenuItem item = menu.findItem(R.id.switch_item);
-        item.setActionView(R.layout.actionbar_switch_layout);
-        Switch serviceSwitch = item.getActionView().findViewById(R.id.serviceSwitch);
-
-        serviceSwitch.setChecked(prefs.getBoolean("service_enabled", false));
-
-        // this switch enables and disables the notification service
-        serviceSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-           @Override
-            public void onCheckedChanged(CompoundButton button, boolean checked) {
-               if (checked) {
-                   // take user to Notification access if they haven't enabled the service already
-                   if (!serviceBound()) {
-                       startActivity(new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS));
-                       Toast.makeText(MainActivity.this, "Enable Nextlit", Toast.LENGTH_SHORT).show();
-                   }
-
-                   /*
-                   Normal procedure here would be to call start/stopService, but for whatever reason
-                   Android ignores these calls for NotificationListenerServices, and so effectively
-                   the only thing that governs whether a service is enabled or not is if it's enabled
-                   in Notification access. Instead, we accept that the service will always run and
-                   just modify a static flag that says if the lights should be enabled or not.
-                   */
-                   Toast.makeText(MainActivity.this, "Service started", Toast.LENGTH_SHORT).show();
-               } else {
-                   Toast.makeText(MainActivity.this, "Service stopped", Toast.LENGTH_SHORT).show();
-               }
-
-               prefs.edit().putBoolean("service_enabled", checked).apply();
-               restoreLightsState();
-           }
-        });
-       return super.onCreateOptionsMenu(menu);
+    public void onBackPressed() {
+        // Handle back button pressed.
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
     }
 
-    void restoreLightsState() {
+    @Override
+    public boolean onNavigationItemSelected(MenuItem item) {
+        // Handle navigation view item clicks.
+        int id = item.getItemId();
+
+        Intent intent = null;
+
+        switch(id) {
+            case R.id.nav_per_app:
+                intent = new Intent(this, MainActivity.class);
+                break;
+            case R.id.nav_behaviour:
+                intent = new Intent(this, MainActivity.class);
+                break;
+        }
+
+        startActivity(intent);
+
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+    private void restoreLightsState() {
         // Restores the "proper" state of the leds. Should be called after any setting which might
         // require a change in their current visibility has been modified.
         if (serviceBound()) {
@@ -172,9 +191,12 @@ public class MainActivity extends AppCompatActivity {
         return !(enabledNotificationListeners == null ||
                 !enabledNotificationListeners.contains(getPackageName()));
     }
+
+    void rootDenied() {
+        // Handle root access unavailable or denied.
+        Toast.makeText(this, "App requires root access, closing", Toast.LENGTH_LONG).show();
+        // prevent the service from constantly trying to restart itself if already enabled
+        prefs.edit().putBoolean("service_enabled", false).apply();
+        finish();
+    }
 }
-
-
-
-
-

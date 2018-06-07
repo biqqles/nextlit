@@ -1,89 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mainLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="eu.biqqles.nextlit.MainActivity"
-    tools:showIn="@layout/activity_main">
-
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="@string/choose_pattern"
-        app:layout_constraintBottom_toTopOf="@+id/patternLayout"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.915" />
-
-    <LinearLayout
-        android:id="@+id/patternLayout"
-        android:layout_width="369dp"
-        android:layout_height="34dp"
-        android:layout_marginBottom="360dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.48"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <Spinner
-            android:id="@+id/patternSpinner"
-            android:layout_width="359dp"
-            android:layout_height="37dp"
-            android:layout_weight="1"
-            android:backgroundTint="@android:color/darker_gray"
-            android:entries="@array/patternSpinnerItems"
-            tools:layout_editor_absoluteX="16dp"
-            tools:layout_editor_absoluteY="348dp" />
-
-        <ToggleButton
-            android:id="@+id/previewButton"
-            android:layout_width="64dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:background="@android:color/transparent"
-            android:button="@drawable/visibility"
-            android:text=""
-            android:textOff=""
-            android:textOn=""
-            android:gravity="center_horizontal|top"
-            app:layout_constraintEnd_toEndOf="parent"
-            tools:layout_editor_absoluteY="279dp" />
-    </LinearLayout>
-
-    <Switch
-        android:id="@+id/showWhenScreenOn"
-        android:layout_width="308dp"
-        android:layout_height="24dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="60dp"
-        android:text="@string/show_when_screen_on"
-        app:layout_constraintEnd_toEndOf="@+id/patternLayout"
-        app:layout_constraintStart_toStartOf="@+id/patternLayout"
-        app:layout_constraintTop_toBottomOf="@+id/patternLayout" />
-
-    <Switch
-        android:id="@+id/showForOngoing"
-        android:layout_width="308dp"
-        android:layout_height="24dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:text="@string/show_for_ongoing"
-        app:layout_constraintEnd_toEndOf="@+id/patternLayout"
-        app:layout_constraintHorizontal_bias="0.494"
-        app:layout_constraintStart_toStartOf="@+id/patternLayout"
-        app:layout_constraintTop_toBottomOf="@+id/showWhenScreenOn" />
+    app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
 </android.support.constraint.ConstraintLayout>
