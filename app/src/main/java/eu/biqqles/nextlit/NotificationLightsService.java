@@ -40,11 +40,10 @@ public class NotificationLightsService extends NotificationListenerService {
         } catch (IOException e) {
             // MainActivity will close if its LedControl can't initialise; how did you manage to get
             // here?
-            System.exit(1);
+            System.exit(126);  // command not executable due to insufficient privileges
         }
 
         manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-
         prefs = getSharedPreferences("nextlit", MODE_PRIVATE);
         appsEnabled = getSharedPreferences("apps_enabled", MODE_PRIVATE);
         appsPatterns = getSharedPreferences("apps_patterns", MODE_PRIVATE);
@@ -99,10 +98,13 @@ public class NotificationLightsService extends NotificationListenerService {
 
             // if 'show for ongoing' is disabled, determine whether the notification shows the
             // standard notification LED on the device so we can mirror that behaviour. On platforms
-            // earlier than Oreo, the best way to do this is to check whether the notification is
-            // clearable: with API 26 we can do one better and actually discover if a notification
-            // wants to enable the LED or not.
-            boolean notificationShowsLights = notification.isClearable();
+            // earlier than Oreo, the only way to do this is to check whether the notification is
+            // clearable and whether DnD is currently enabled: with API 26 we can do one better and
+            // actually discover if a notification should enable the LED or not.
+            boolean dndActive = manager.getCurrentInterruptionFilter() ==
+                    NotificationManager.INTERRUPTION_FILTER_NONE;  // all notifications suppressed
+
+            boolean notificationShowsLights = notification.isClearable() && !dndActive;
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 String channelId = notification.getNotification().getChannelId();
