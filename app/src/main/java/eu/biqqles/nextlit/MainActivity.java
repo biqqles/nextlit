@@ -9,6 +9,9 @@
 
 package eu.biqqles.nextlit;
 
+import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -72,34 +75,35 @@ public class MainActivity extends AppCompatActivity
 
         // this switch enables and disables the notification service
         serviceSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
             public void onCheckedChanged(CompoundButton button, boolean checked) {
-                String statusText;
+            int statusText;
 
-                if (checked) {
-                    // take user to Notification access if they haven't enabled the service already
-                    if (!serviceBound()) {
-                        startActivity(new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS));
-                        Toast.makeText(MainActivity.this, "Enable Nextlit", Toast.LENGTH_SHORT).show();
-                    }
-
-                    /*
-                    Normal procedure here would be to call start/stopService, but for whatever reason
-                    Android ignores these calls for NotificationListenerServices, and so effectively
-                    the only thing that governs whether a service is enabled or not is if it's enabled
-                    in Notification access. Instead, we accept that the service will always run and
-                    just modify a static flag that says if the lights should be enabled or not.
-                    */
-                    statusText = getResources().getString(R.string.service_enabled);
-                } else {
-                    statusText = getResources().getString(R.string.service_disabled);
+            if (checked) {
+                // take user to Notification access if they haven't enabled the service already
+                if (!serviceBound()) {
+                    startActivity(new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS));
+                    Toast.makeText(MainActivity.this,
+                                   getResources().getString(R.string.enable_service),
+                                   Toast.LENGTH_SHORT).show();
                 }
 
-                Toast.makeText(MainActivity.this, statusText, Toast.LENGTH_SHORT).show();
-                subtitle.setText(statusText);
+                /*
+                Normal procedure here would be to call start/stopService, but for whatever reason
+                Android ignores these calls for NotificationListenerServices, and so effectively
+                the only thing that governs whether a service is enabled or not is if it's enabled
+                in Notification access. Instead, we accept that the service will always run and
+                just modify a static flag that says if the lights should be enabled or not.
+                */
+                statusText = R.string.service_enabled;
+            } else {
+                statusText = R.string.service_disabled;
+            }
 
-                prefs.edit().putBoolean("service_enabled", checked).apply();
-                restoreLightsState();
+            Toast.makeText(MainActivity.this, statusText, Toast.LENGTH_SHORT).show();
+            subtitle.setText(statusText);
+
+            prefs.edit().putBoolean("service_enabled", checked).apply();
+            restoreLightsState();
             }
         });
 
@@ -107,7 +111,7 @@ public class MainActivity extends AppCompatActivity
 
         patternSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView adapterView, View view, int i, long l) {
-                // halt preview and update perferences
+                // halt preview and update preferences
                 previewButton.setChecked(false);
                 restoreLightsState();
                 prefs.edit().putInt("pattern", i).apply();
@@ -116,24 +120,27 @@ public class MainActivity extends AppCompatActivity
             public void onNothingSelected(AdapterView<?> adapterView) { }
         });
 
-        patternSpinner.setSelection(prefs.getInt("pattern", 1) - 1);
+        patternSpinner.setSelection(prefs.getInt("pattern", 0));
         previewButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton button, boolean checked) {
-                if (checked) {
-                    String patternName = patternSpinner.getSelectedItem().toString();
-                    int patternNumber = patternSpinner.getSelectedItemPosition();
+            if (checked) {
+                String patternName = patternSpinner.getSelectedItem().toString();
+                int patternNumber = patternSpinner.getSelectedItemPosition();
 
-                    ledcontrol.clearAll();
-                    ledcontrol.setPattern(patternNumber);
+                ledcontrol.clearAll();
+                ledcontrol.setPattern(patternNumber);
 
-                    View view = findViewById(R.id.mainLayout);
-                    Snackbar.make(view, "Previewing " + patternName, Snackbar.LENGTH_LONG).show();
-                } else {
-                    restoreLightsState();
-                }
+                View view = findViewById(R.id.mainLayout);
+                Snackbar.make(view, "Previewing " + patternName, Snackbar.LENGTH_LONG).show();
+            } else {
+                restoreLightsState();
+            }
             }
         });
+
+        // display default fragment
+        onNavigationItemSelected(navigationView.getMenu().findItem(R.id.nav_per_app));
     }
 
     @Override
@@ -148,22 +155,27 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks.
         int id = item.getItemId();
 
-        Intent intent = null;
+        if (id == R.id.settings) {
+            // settings activities work differently
+        } else {
+            Fragment fragment = new Fragment();
 
-        switch(id) {
-            case R.id.nav_per_app:
-                intent = new Intent(this, MainActivity.class);
-                break;
-            case R.id.nav_behaviour:
-                intent = new Intent(this, MainActivity.class);
-                break;
+            switch (id) {
+                case R.id.nav_per_app:
+                    fragment = new PerAppFragment();
+                    break;
+            }
+
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                    .replace(R.id.content_frame, fragment)
+                    .commitNow();
         }
-
-        startActivity(intent);
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);

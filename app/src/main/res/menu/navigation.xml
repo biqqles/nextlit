@@ -6,12 +6,13 @@
     <group
         android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_behaviour"
-            android:icon="@drawable/ic_settings"
-            android:title="@string/behaviour" />
-        <item
             android:id="@+id/nav_per_app"
             android:icon="@drawable/ic_apps"
-            android:title="@string/per_app_settings" />
+            android:title="@string/title_fragment_per_app_config" />
+
+        <item
+            android:id="@+id/settings"
+            android:icon="@drawable/ic_settings"
+            android:title="@string/title_activity_settings" />
     </group>
 </menu>
