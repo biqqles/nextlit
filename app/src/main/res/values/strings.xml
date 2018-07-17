@@ -2,9 +2,17 @@
     <string name="app_name" translatable="false">Nextlit</string>
     <string name="choose_pattern">Select pattern</string>
 
-    <string name="show_when_screen_on">Show when screen on</string>
-    <string name="show_for_ongoing">Show for ongoing notifications</string>
-    <string name="show_for_seen">Show for seen notifications</string>
+    <string name="pref_show_screen_on_title">Show when screen on</string>
+    <string name="pref_show_screen_on_summary">Activate lights for notifications while the screen is on</string>
+
+    <string name="pref_show_for_ongoing_title">Show for ongoing notifications</string>
+    <string name="pref_show_for_ongoing_summary">Activate lights for ongoing (persistent) notifications</string>
+
+    <string name="pref_use_notif_rule_title">Mimic standard LED behaviour (8.0+)</string>
+    <string name="pref_use_notif_rule_summary">Only activate lights for notifications that trigger the standard notification LED</string>
+
+    <string name="pref_obey_dnd_title">Obey Do Not Disturb policy</string>
+    <string name="pref_obey_dnd_summary">Do not activate lights when Do Not Disturb is active</string>
 
     <string name="nav_header_title" translatable="false">Nextlit 💡</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
@@ -14,6 +22,7 @@
 
     <string name="preview_pattern">Preview</string>
     <string name="default_pattern">DEFAULT</string>
+    <string name="preview_active">Previewing {0}</string>
 
     <string name="service_enabled">Service enabled</string>
     <string name="service_disabled">Service disabled</string>

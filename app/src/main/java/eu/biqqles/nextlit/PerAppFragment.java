@@ -10,15 +10,17 @@
 package eu.biqqles.nextlit;
 
 import android.app.Activity;
-import android.os.AsyncTask;
-import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
-import android.support.v4.widget.SwipeRefreshLayout;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -49,18 +51,18 @@ public class PerAppFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         final Activity activity = getActivity();
+        final Context context = getContext();
         final View view = inflater.inflate(R.layout.fragment_per_app_config, container, false);
         final SwipeRefreshLayout swipeLayout = view.findViewById(R.id.swipeRefreshLayout);
         final RecyclerView recyclerView = view.findViewById(R.id.recyclerView);
 
+        if (activity == null || context == null) {
+            return view;
+        }
+
         activity.setTitle(R.string.title_fragment_per_app_config);
 
-        adapter = new ApplicationAdapter(
-                activity.getPackageManager(),
-                swipeLayout,
-                activity.getSharedPreferences("nextlit", Activity.MODE_PRIVATE),
-                activity.getSharedPreferences("apps_enabled", Activity.MODE_PRIVATE),
-                activity.getSharedPreferences("apps_patterns", Activity.MODE_PRIVATE));
+        adapter = new ApplicationAdapter(context, swipeLayout);
 
         recyclerView.setAdapter(adapter);
 
@@ -87,7 +89,7 @@ class ApplicationAdapter extends RecyclerView.Adapter<ApplicationAdapter.AppCard
     static class ParallelPackageLoader extends AsyncTask<ApplicationAdapter, Void, Void> {
         // This AsyncTask ensures that the RecycleView is populated asynchronously. This is required
         // because PackageManager takes a while to return data.
-        ApplicationAdapter adapter;
+        private ApplicationAdapter adapter;
 
         @Override
         protected Void doInBackground(ApplicationAdapter... params) {
@@ -149,12 +151,12 @@ class ApplicationAdapter extends RecyclerView.Adapter<ApplicationAdapter.AppCard
         }
     }
 
-    ApplicationAdapter(PackageManager pm, SwipeRefreshLayout swipe, SharedPreferences prefs, SharedPreferences enabled, SharedPreferences patterns) {
-        this.pm = pm;
-        this.prefs = prefs;
+    ApplicationAdapter(Context context, SwipeRefreshLayout swipe) {
+        this.pm = context.getPackageManager();
+        this.prefs = PreferenceManager.getDefaultSharedPreferences(context);
         this.swipe = swipe;
-        appsEnabled = enabled;
-        appsPatterns = patterns;
+        appsEnabled = context.getSharedPreferences("apps_enabled", Activity.MODE_PRIVATE);
+        appsPatterns = context.getSharedPreferences("apps_patterns", Activity.MODE_PRIVATE);
         refresh();
     }
 
@@ -186,14 +188,15 @@ class ApplicationAdapter extends RecyclerView.Adapter<ApplicationAdapter.AppCard
             @Override
             public void onCheckedChanged(CompoundButton button, boolean checked) {
                 // animate button
-                float rotation = card.expand.getRotation();
+                final float rotation = card.expand.getRotation();
                 card.expand.animate().rotation(rotation == 0f ? 180f : 0f).setDuration(
                         AppCard.EXPAND_ANIMATION_DURATION).start();
+
                 // show configLayout
                 card.configLayout.setVisibility(checked ? View.VISIBLE : View.GONE);
                 if (checked) {
                     // on expansion, populate fields
-                    int defaultPattern = prefs.getInt("pattern", 1);
+                    final int defaultPattern = prefs.getInt("pattern", 1);
 
                     // "enabled" checkbox
                     card.enabled.setChecked(appsEnabled.getBoolean(app.packageName, true));

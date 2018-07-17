@@ -9,15 +9,16 @@
 
 package eu.biqqles.nextlit;
 
-import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -34,9 +35,11 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+                          implements NavigationView.OnNavigationItemSelectedListener,
+                                     SharedPreferences.OnSharedPreferenceChangeListener {
 
     private LedControl ledcontrol;
     private SharedPreferences prefs;
@@ -45,10 +48,6 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
-        prefs = getSharedPreferences("nextlit", MODE_PRIVATE);
 
         try {
             ledcontrol = new LedControl();
@@ -57,16 +56,28 @@ public class MainActivity extends AppCompatActivity
             rootDenied();
         }
 
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+        // ensure that the service is aware of all changes to settings
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        prefs.registerOnSharedPreferenceChangeListener(this);
+        getSharedPreferences("apps_enabled", MODE_PRIVATE)
+                .registerOnSharedPreferenceChangeListener(this);
+        getSharedPreferences("apps_patterns", MODE_PRIVATE)
+                .registerOnSharedPreferenceChangeListener(this);
+
+        // set up navigation drawer
+        final NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
+        final Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        final DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        final ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-
-        // add listener to start/stop service when switch toggled
+        // and header
         final View header = navigationView.getHeaderView(0);
         final Switch serviceSwitch = header.findViewById(R.id.serviceSwitch);
         final Spinner patternSpinner = header.findViewById(R.id.patternSpinner);
@@ -87,13 +98,11 @@ public class MainActivity extends AppCompatActivity
                                    Toast.LENGTH_SHORT).show();
                 }
 
-                /*
-                Normal procedure here would be to call start/stopService, but for whatever reason
+                /* Normal procedure here would be to call start/stopService, but for whatever reason
                 Android ignores these calls for NotificationListenerServices, and so effectively
                 the only thing that governs whether a service is enabled or not is if it's enabled
                 in Notification access. Instead, we accept that the service will always run and
-                just modify a static flag that says if the lights should be enabled or not.
-                */
+                just modify a static flag that says if the lights should be enabled or not. */
                 statusText = R.string.service_enabled;
             } else {
                 statusText = R.string.service_disabled;
@@ -103,7 +112,6 @@ public class MainActivity extends AppCompatActivity
             subtitle.setText(statusText);
 
             prefs.edit().putBoolean("service_enabled", checked).apply();
-            restoreLightsState();
             }
         });
 
@@ -113,7 +121,6 @@ public class MainActivity extends AppCompatActivity
             public void onItemSelected(AdapterView adapterView, View view, int i, long l) {
                 // halt preview and update preferences
                 previewButton.setChecked(false);
-                restoreLightsState();
                 prefs.edit().putInt("pattern", i).apply();
             }
 
@@ -125,14 +132,15 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onCheckedChanged(CompoundButton button, boolean checked) {
             if (checked) {
-                String patternName = patternSpinner.getSelectedItem().toString();
-                int patternNumber = patternSpinner.getSelectedItemPosition();
+                final String patternName = patternSpinner.getSelectedItem().toString();
+                final int patternNumber = patternSpinner.getSelectedItemPosition();
 
                 ledcontrol.clearAll();
                 ledcontrol.setPattern(patternNumber);
 
-                View view = findViewById(R.id.mainLayout);
-                Snackbar.make(view, "Previewing " + patternName, Snackbar.LENGTH_LONG).show();
+                final String message = MessageFormat.format(getResources()
+                        .getString(R.string.preview_active), patternName);
+                Snackbar.make(header, message, Snackbar.LENGTH_LONG).show();
             } else {
                 restoreLightsState();
             }
@@ -157,10 +165,11 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         // Handle navigation view item clicks.
-        int id = item.getItemId();
+        final int id = item.getItemId();
 
-        if (id == R.id.settings) {
-            // settings activities work differently
+        if (id == R.id.nav_settings) {
+            Intent intent = new Intent(this, SettingsActivity.class);
+            startActivity(intent);
         } else {
             Fragment fragment = new Fragment();
 
@@ -182,6 +191,13 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        // This ensures that the lights' state always reflects the current settings. It applies
+        // throughout the application.
+        restoreLightsState();
+    }
+
     private void restoreLightsState() {
         // Restores the "proper" state of the leds. Should be called after any setting which might
         // require a change in their current visibility has been modified.
@@ -197,8 +213,8 @@ public class MainActivity extends AppCompatActivity
 
     boolean serviceBound() {
         // Reports whether the notification service has been bound (i.e. activated).
-        String enabledNotificationListeners = Settings.Secure.getString(getContentResolver(),
-                "enabled_notification_listeners");
+        final String enabledNotificationListeners = Settings.Secure.getString(
+                getContentResolver(),"enabled_notification_listeners");
 
         return !(enabledNotificationListeners == null ||
                 !enabledNotificationListeners.contains(getPackageName()));

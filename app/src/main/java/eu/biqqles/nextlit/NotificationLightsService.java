@@ -17,6 +17,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 
@@ -25,6 +26,7 @@ import java.io.IOException;
 public class NotificationLightsService extends NotificationListenerService {
     private LedControl ledcontrol;
     private BroadcastReceiver screenReceiver;
+    private BroadcastReceiver dndReceiver;
     private NotificationManager manager;
     private SharedPreferences prefs;
     private SharedPreferences appsEnabled;  // preferences store each app's status and pattern,
@@ -44,12 +46,12 @@ public class NotificationLightsService extends NotificationListenerService {
         }
 
         manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        prefs = getSharedPreferences("nextlit", MODE_PRIVATE);
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
         appsEnabled = getSharedPreferences("apps_enabled", MODE_PRIVATE);
         appsPatterns = getSharedPreferences("apps_patterns", MODE_PRIVATE);
 
         // set up listener for screen on/off events
-        IntentFilter screenStateFilter = new IntentFilter();
+        final IntentFilter screenStateFilter = new IntentFilter();
         screenStateFilter.addAction(Intent.ACTION_SCREEN_ON);
         screenStateFilter.addAction(Intent.ACTION_SCREEN_OFF);
 
@@ -67,63 +69,77 @@ public class NotificationLightsService extends NotificationListenerService {
                 updateState();
             }
         };
-
         registerReceiver(screenReceiver, screenStateFilter);
-    }
 
-    @Override
-    public void onDestroy() {
-        unregisterReceiver(screenReceiver);
-        super.onDestroy();
+        // and for changes in Do not Disturb state
+        final IntentFilter dndFilter = new IntentFilter();
+        dndFilter.addAction(NotificationManager.ACTION_INTERRUPTION_FILTER_CHANGED);
+
+        dndReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                updateState();
+            }
+        };
+        registerReceiver(dndReceiver, dndFilter);
     }
 
     void updateState() {
         // Decides whether the user needs to be notified and activates or deactivates the LEDs
         // accordingly.
-        boolean enabled = prefs.getBoolean("service_enabled", false);
-        boolean showWhenScreenOn = prefs.getBoolean("show_when_screen_on", false);
-        boolean showForOngoing = prefs.getBoolean("show_for_ongoing", false);
+
+        // service configuration options, listed in a rough order of priority
+        final boolean enabled = prefs.getBoolean("service_enabled", false);
+        final boolean obeyDnDPolicy = prefs.getBoolean("obey_dnd_policy", false);
+        final boolean showWhenScreenOn = prefs.getBoolean("show_when_screen_on", false);
+        final boolean obeyNotificationRules = prefs.getBoolean("obey_notif_light_rules", false);
+        final boolean showForOngoing = prefs.getBoolean("show_for_ongoing", false);
+
+        final boolean dndActive = manager.getCurrentInterruptionFilter() ==
+                NotificationManager.INTERRUPTION_FILTER_ALARMS;  // "alarms only" mode
 
         int pattern = 0;  // rem: 0 represents disabled lights
 
-        StatusBarNotification[] notifications = getActiveNotifications();
+        // get notifications
+        final StatusBarNotification[] notifications = getActiveNotifications();
         if (notifications == null) {
             return;  // service hasn't been initialised yet
         }
 
-        for (StatusBarNotification notification:notifications) {
-            String packageName = notification.getPackageName();
-            boolean appEnabled = appsEnabled.getBoolean(packageName, true);
-            int appPattern = appsPatterns.getInt(packageName, 0);
+        if (enabled && !(dndActive && obeyDnDPolicy) && (!screenOn || showWhenScreenOn)) {
 
-            // if 'show for ongoing' is disabled, determine whether the notification shows the
-            // standard notification LED on the device so we can mirror that behaviour. On platforms
-            // earlier than Oreo, the only way to do this is to check whether the notification is
-            // clearable and whether DnD is currently enabled: with API 26 we can do one better and
-            // actually discover if a notification should enable the LED or not.
-            boolean dndActive = manager.getCurrentInterruptionFilter() ==
-                    NotificationManager.INTERRUPTION_FILTER_NONE;  // all notifications suppressed
+            for (StatusBarNotification notification : notifications) {
+                final String packageName = notification.getPackageName();
+                final boolean appEnabled = appsEnabled.getBoolean(packageName, true);
+                final int appPattern = appsPatterns.getInt(packageName, 0);
 
-            boolean notificationShowsLights = notification.isClearable() && !dndActive;
+                /* If 'show for ongoing' is disabled, determine whether the notification shows the
+                standard notification LED on the device so we can mirror that behaviour. On platforms
+                earlier than Oreo, the only way to do this is to check whether the notification is
+                clearable and whether DnD is currently enabled: with API 26 we can do one better and
+                actually discover if a notification should enable the LED or not. */
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                String channelId = notification.getNotification().getChannelId();
-                if (manager != null) {
-                    NotificationChannel channel = manager.getNotificationChannel(channelId);
-                    if (channel != null) {
-                        notificationShowsLights = channel.shouldShowLights();
+                boolean notificationShowsLights = showForOngoing || notification.isClearable();
+
+                if (obeyNotificationRules && Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    String channelId = notification.getNotification().getChannelId();
+                    if (manager != null) {
+                        NotificationChannel channel = manager.getNotificationChannel(channelId);
+                        if (channel != null) {
+                            notificationShowsLights = channel.shouldShowLights();
+                        }
                     }
                 }
-            }
 
-            if ((showForOngoing || notificationShowsLights) && appEnabled) {
-                // for appPattern, 0 represents the default pattern
-                pattern = appPattern > 0 ? appPattern : prefs.getInt("pattern", 0);
-                break;
+                if (notificationShowsLights && appEnabled) {
+                    // for appPattern, 0 represents the default pattern
+                    pattern = appPattern > 0 ? appPattern : prefs.getInt("pattern", 0);
+                    break;
+                }
             }
         }
 
-        if (pattern > 0 && enabled && (!screenOn || showWhenScreenOn)) {
+        if (pattern > 0) {
             // activate the lights
             // if a pattern isn't running, start one
             if (pattern > 5 || ledcontrol.getPredefPattern() != pattern) {
@@ -147,6 +163,13 @@ public class NotificationLightsService extends NotificationListenerService {
             }
         }
         return START_STICKY;
+    }
+
+    @Override
+    public void onDestroy() {
+        unregisterReceiver(screenReceiver);
+        unregisterReceiver(dndReceiver);
+        super.onDestroy();
     }
 
     @Override

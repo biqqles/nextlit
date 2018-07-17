@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <SwitchPreference
+        android:key="show_when_screen_on"
+        android:title="@string/pref_show_screen_on_title"
+        android:summary="@string/pref_show_screen_on_summary"
+        android:defaultValue="false" />
+
+    <SwitchPreference
+        android:key="use_notif_lights_rule"
+        android:title="@string/pref_use_notif_rule_title"
+        android:summary="@string/pref_use_notif_rule_summary"
+        android:defaultValue="false" />  <!--Only supported on API 26 and up-->
+
+    <SwitchPreference
+        android:key="show_for_ongoing"
+        android:title="@string/pref_show_for_ongoing_title"
+        android:summary="@string/pref_show_for_ongoing_summary"
+        android:defaultValue="false" />
+
+    <SwitchPreference
+        android:key="obey_dnd_policy"
+        android:title="@string/pref_obey_dnd_title"
+        android:summary="@string/pref_obey_dnd_summary"
+        android:defaultValue="false" />
+
+</PreferenceScreen>
