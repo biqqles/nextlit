@@ -1,6 +1,16 @@
 <resources>
     <string name="app_name" translatable="false">Nextlit</string>
-    <string name="choose_pattern">Select pattern</string>
+
+    <string name="title_fragment_per_app_config">Per-app configuration</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <string name="nav_header_title" translatable="false">Nextlit 💡</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_subtitle">Service disabled</string>
+    <string name="nav_header_desc">Navigation header</string>
+
+    <string name="root_denied">Nextlit requires root access. Closing.</string>
 
     <string name="pref_show_screen_on_title">Show when screen on</string>
     <string name="pref_show_screen_on_summary">Activate lights for notifications while the screen is on</string>
@@ -14,12 +24,7 @@
     <string name="pref_obey_dnd_title">Obey Do Not Disturb policy</string>
     <string name="pref_obey_dnd_summary">Do not activate lights when Do Not Disturb is active</string>
 
-    <string name="nav_header_title" translatable="false">Nextlit 💡</string>
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="nav_header_subtitle">Service disabled</string>
-    <string name="nav_header_desc">Navigation header</string>
-
+    <string name="choose_pattern">Select pattern</string>
     <string name="preview_pattern">Preview</string>
     <string name="default_pattern">DEFAULT</string>
     <string name="preview_active">Previewing {0}</string>
@@ -27,9 +32,6 @@
     <string name="service_enabled">Service enabled</string>
     <string name="service_disabled">Service disabled</string>
     <string name="enable_service">Enable Nextlit</string>
-
-    <string name="title_fragment_per_app_config">Per-app configuration</string>
-    <string name="title_activity_settings">Settings</string>
 
     <string name="icon">Icon</string>
 </resources>

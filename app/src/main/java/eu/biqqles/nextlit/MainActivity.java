@@ -12,6 +12,7 @@ package eu.biqqles.nextlit;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
@@ -43,11 +44,15 @@ public class MainActivity extends AppCompatActivity
 
     private LedControl ledcontrol;
     private SharedPreferences prefs;
+    private Resources resources;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        resources = getResources();
 
         try {
             ledcontrol = new LedControl();
@@ -57,7 +62,6 @@ public class MainActivity extends AppCompatActivity
         }
 
         // ensure that the service is aware of all changes to settings
-        prefs = PreferenceManager.getDefaultSharedPreferences(this);
         prefs.registerOnSharedPreferenceChangeListener(this);
         getSharedPreferences("apps_enabled", MODE_PRIVATE)
                 .registerOnSharedPreferenceChangeListener(this);
@@ -73,7 +77,8 @@ public class MainActivity extends AppCompatActivity
 
         final DrawerLayout drawer = findViewById(R.id.drawer_layout);
         final ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+                this, drawer, toolbar, R.string.navigation_drawer_open,
+                R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
@@ -94,8 +99,8 @@ public class MainActivity extends AppCompatActivity
                 if (!serviceBound()) {
                     startActivity(new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS));
                     Toast.makeText(MainActivity.this,
-                                   getResources().getString(R.string.enable_service),
-                                   Toast.LENGTH_SHORT).show();
+                                   resources.getString(R.string.enable_service), Toast.LENGTH_SHORT)
+                            .show();
                 }
 
                 /* Normal procedure here would be to call start/stopService, but for whatever reason
@@ -138,8 +143,8 @@ public class MainActivity extends AppCompatActivity
                 ledcontrol.clearAll();
                 ledcontrol.setPattern(patternNumber);
 
-                final String message = MessageFormat.format(getResources()
-                        .getString(R.string.preview_active), patternName);
+                final String message = MessageFormat.format(
+                        resources.getString(R.string.preview_active), patternName);
                 Snackbar.make(header, message, Snackbar.LENGTH_LONG).show();
             } else {
                 restoreLightsState();
@@ -222,7 +227,8 @@ public class MainActivity extends AppCompatActivity
 
     void rootDenied() {
         // Handle root access unavailable or denied.
-        Toast.makeText(this, "App requires root access, closing", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, resources.getString(R.string.root_denied), Toast.LENGTH_LONG)
+                .show();
         // prevent the service from constantly trying to restart itself if already enabled
         prefs.edit().putBoolean("service_enabled", false).apply();
         finish();
