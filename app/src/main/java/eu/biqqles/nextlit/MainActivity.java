@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity
         final Switch serviceSwitch = header.findViewById(R.id.serviceSwitch);
         final Spinner patternSpinner = header.findViewById(R.id.patternSpinner);
         final ToggleButton previewButton = header.findViewById(R.id.previewButton);
-        final TextView subtitle = header.findViewById(R.id.nav_header_subtitle);
+        final TextView subtitle = header.findViewById(R.id.service_state);
 
         // this switch enables and disables the notification service
         serviceSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {

@@ -16,15 +16,14 @@
 
     <Spinner
         android:id="@+id/patternSpinner"
-        android:layout_toStartOf="@+id/previewButton"
         android:layout_width="fill_parent"
-        android:layout_height="37dp"
-        android:backgroundTint="@android:color/darker_gray"
-        android:entries="@array/patternSpinnerItems" />
+        android:layout_height="36dp"
+        android:layout_toStartOf="@+id/previewButton"
+        android:backgroundTint="@android:color/darker_gray" />
 
     <ToggleButton
         android:id="@+id/previewButton"
-        android:layout_width="56dp"
+        android:layout_width="42dp"
         android:layout_height="match_parent"
         android:background="@android:color/transparent"
         android:button="@drawable/visibility"
@@ -32,6 +31,6 @@
         android:textOff=""
         android:textOn=""
         android:gravity="center_horizontal|top"
-        android:layout_alignParentEnd="true"
-        tools:layout_editor_absoluteY="279dp" />
+        android:layout_alignParentEnd="true" />
+
 </RelativeLayout>

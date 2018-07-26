@@ -33,5 +33,5 @@
     <string name="service_disabled">Service disabled</string>
     <string name="enable_service">Enable Nextlit</string>
 
-    <string name="icon">Icon</string>
+    <string name="icon_hint">Icon</string>
 </resources>

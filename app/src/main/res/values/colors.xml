@@ -2,7 +2,8 @@
 <!--Adapted from colourway at <https://drive.google.com/file/d/0B7_Lpp5Iqj6wZVlnbWZSNmVoaFk/view>-->
 <resources>
     <color name="primary">#51c1c0</color>
-    <color name="primaryDark">#51c1c0</color>
-    <color name="accent">#f6d70b</color>
+    <color name="dark">#48aa99</color>
+    <color name="light">#9adada</color>
+    <color name="accent">#ffd740</color>
     <color name="iconGrey">#737373</color>
 </resources>
