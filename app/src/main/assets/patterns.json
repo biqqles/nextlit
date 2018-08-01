@@ -1,0 +1,56 @@
+[
+  {
+    "name": "Blink",
+    "engines": [
+      {
+        "number": 2,
+        "leds": "1111",
+        "instructions": "9d80_40ff_7f00_5f00_4000_7f00_5f00_0000"
+      }
+    ]
+  },
+
+  {
+    "name": "Chase",
+    "engines": [
+      {
+        "number": 2,
+        "leds": "1111",
+        "instructions": "9d80_9d04_02ff_9d03_02ff_9d02_02ff_9d01_02ff_9d80_0bff_0000"
+      }
+    ]
+  },
+
+  {
+    "name": "Breathe",
+    "engines": [
+      {
+        "number": 2,
+        "leds": "1111",
+        "instructions": "9d80_1aff_19ff_0000"
+      }
+    ]
+  },
+
+  {
+    "name": "Pulse",
+    "engines": [
+      {
+        "number": 2,
+        "leds": "1111",
+        "instructions": "9d80_12ff_13dc_0000"
+      }
+    ]
+  },
+
+  {
+    "name": "Dapple",
+    "engines": [
+      {
+        "number": 2,
+        "leds": "1111",
+        "instructions": "9d80_9d03_0aff_9d02_0aff_9d04_0aff_9d01_0aff_9d80_0bff_0000"
+      }
+    ]
+  }
+]

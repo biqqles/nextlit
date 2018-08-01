@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="patternSpinnerItems">
+    <string-array name="predefinedPatternNames">
         <!--Descriptions for the patterns programmed into the LP5523 by Nextbit-->
         <item>No pattern selected</item>
         <item>Bright</item>
@@ -8,10 +8,5 @@
         <item>Flow (reversed)</item>
         <item>Oscillate</item>
         <item>Twinkle</item>
-        <!--Descriptions for custom pattern demonstrations-->
-        <item>(Demo) Loading</item>
-        <item>(Demo) Breathing</item>
-        <item>(Demo) Pulse</item>
-        <item>(Demo) Bounce</item>
     </string-array>
 </resources>

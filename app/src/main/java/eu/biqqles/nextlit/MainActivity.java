@@ -28,6 +28,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.Spinner;
 import android.widget.Switch;
@@ -54,8 +55,9 @@ public class MainActivity extends AppCompatActivity
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         resources = getResources();
 
+        final PatternProvider patternProvider = new PatternProvider(getApplicationContext());
         try {
-            ledcontrol = new LedControl();
+            ledcontrol = new LedControl(patternProvider.patterns);
         } catch (IOException e) {
             // root access denied/unavailable
             rootDenied();
@@ -122,26 +124,30 @@ public class MainActivity extends AppCompatActivity
 
         serviceSwitch.setChecked(prefs.getBoolean("service_enabled", false));
 
+        // populate spinner
+        patternSpinner.setAdapter(new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_dropdown_item, patternProvider.getNames()));
+
         patternSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             public void onItemSelected(AdapterView adapterView, View view, int i, long l) {
                 // halt preview and update preferences
                 previewButton.setChecked(false);
-                prefs.edit().putInt("pattern", i).apply();
+                final String patternName = patternSpinner.getSelectedItem().toString();
+                prefs.edit().putString("pattern_name", patternName).apply();
             }
 
             public void onNothingSelected(AdapterView<?> adapterView) { }
         });
 
-        patternSpinner.setSelection(prefs.getInt("pattern", 0));
+        patternSpinner.setSelection(patternProvider.indexOf(prefs.getString("pattern_name", null)));
         previewButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton button, boolean checked) {
             if (checked) {
                 final String patternName = patternSpinner.getSelectedItem().toString();
-                final int patternNumber = patternSpinner.getSelectedItemPosition();
 
                 ledcontrol.clearAll();
-                ledcontrol.setPattern(patternNumber);
+                ledcontrol.setPattern(patternName);
 
                 final String message = MessageFormat.format(
                         resources.getString(R.string.preview_active), patternName);

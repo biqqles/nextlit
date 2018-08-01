@@ -17,7 +17,6 @@ import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -27,6 +26,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
@@ -79,10 +79,11 @@ public class PerAppFragment extends Fragment {
 
 
 class ApplicationAdapter extends RecyclerView.Adapter<ApplicationAdapter.AppCard> {
+    private PatternProvider patternProvider;
     private List<AppInfo> apps = new ArrayList<>();
+    private Context context;
     private PackageManager pm;
     private SwipeRefreshLayout swipe;
-    private SharedPreferences prefs;  // main app preferences
     private SharedPreferences appsEnabled;  // preferences store each app's status and pattern,
     private SharedPreferences appsPatterns;  // using package name as a key
 
@@ -152,8 +153,9 @@ class ApplicationAdapter extends RecyclerView.Adapter<ApplicationAdapter.AppCard
     }
 
     ApplicationAdapter(Context context, SwipeRefreshLayout swipe) {
+        patternProvider = new PatternProvider(context);
+        this.context = context;
         this.pm = context.getPackageManager();
-        this.prefs = PreferenceManager.getDefaultSharedPreferences(context);
         this.swipe = swipe;
         appsEnabled = context.getSharedPreferences("apps_enabled", Activity.MODE_PRIVATE);
         appsPatterns = context.getSharedPreferences("apps_patterns", Activity.MODE_PRIVATE);
@@ -196,10 +198,15 @@ class ApplicationAdapter extends RecyclerView.Adapter<ApplicationAdapter.AppCard
                 card.configLayout.setVisibility(checked ? View.VISIBLE : View.GONE);
                 if (checked) {
                     // on expansion, populate fields
-                    final int defaultPattern = prefs.getInt("pattern", 1);
+                    ArrayList<String> patternNames = patternProvider.getNames();
+                    patternNames.set(0, "Default");
+                    card.pattern.setAdapter(new ArrayAdapter<>(context,
+                            android.R.layout.simple_spinner_dropdown_item, patternNames));
+
+                    final boolean appEnabled = appsEnabled.getBoolean(app.packageName, true);
 
                     // "enabled" checkbox
-                    card.enabled.setChecked(appsEnabled.getBoolean(app.packageName, true));
+                    card.enabled.setChecked(appEnabled);
                     card.enabled.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                         public void onCheckedChanged(CompoundButton button, boolean checked) {
                             appsEnabled.edit().putBoolean(app.packageName, checked).apply();
@@ -208,17 +215,18 @@ class ApplicationAdapter extends RecyclerView.Adapter<ApplicationAdapter.AppCard
                     });
 
                     // pattern spinner
-                    card.pattern.setSelection(appsPatterns.getInt(app.packageName, defaultPattern));
+                    card.pattern.setEnabled(appEnabled);
                     card.pattern.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                         public void onItemSelected(AdapterView adapterView, View view, int i, long l) {
-                            appsPatterns.edit().putInt(app.packageName, i).apply();
+                            final String patternName = i > 0 ? card.pattern.getSelectedItem().toString() : null;
+                            appsPatterns.edit().putString(app.packageName, patternName).apply();
                         }
 
                         public void onNothingSelected(AdapterView<?> adapterView) { }
                     });
                 }
             }
-         });
+        });
     }
 
     @Override

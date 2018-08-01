@@ -37,8 +37,10 @@ public class NotificationLightsService extends NotificationListenerService {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        final PatternProvider patternProvider = new PatternProvider(getApplicationContext());
         try {
-            ledcontrol = new LedControl();
+            ledcontrol = new LedControl(patternProvider.patterns);
         } catch (IOException e) {
             // MainActivity will close if its LedControl can't initialise; how did you manage to get
             // here?
@@ -98,7 +100,7 @@ public class NotificationLightsService extends NotificationListenerService {
         final boolean dndActive = manager.getCurrentInterruptionFilter() ==
                 NotificationManager.INTERRUPTION_FILTER_ALARMS;  // "alarms only" mode
 
-        int pattern = 0;  // rem: 0 represents disabled lights
+        String pattern = null;  // null represents disabled lights
 
         // get notifications
         final StatusBarNotification[] notifications = getActiveNotifications();
@@ -111,7 +113,7 @@ public class NotificationLightsService extends NotificationListenerService {
             for (StatusBarNotification notification : notifications) {
                 final String packageName = notification.getPackageName();
                 final boolean appEnabled = appsEnabled.getBoolean(packageName, true);
-                final int appPattern = appsPatterns.getInt(packageName, 0);
+                final String appPattern = appsPatterns.getString(packageName, null);
 
                 /* If 'show for ongoing' is disabled, determine whether the notification shows the
                 standard notification LED on the device so we can mirror that behaviour. On platforms
@@ -132,22 +134,15 @@ public class NotificationLightsService extends NotificationListenerService {
                 }
 
                 if (notificationShowsLights && appEnabled) {
-                    // for appPattern, 0 represents the default pattern
-                    pattern = appPattern > 0 ? appPattern : prefs.getInt("pattern", 0);
-                    break;
+                    // for appPattern, null represents the default pattern
+                    pattern = appPattern != null ? appPattern : prefs.getString("pattern_name", null);
+                    if (pattern != null) {
+                        break;
+                    }
                 }
             }
         }
-
-        if (pattern > 0) {
-            // activate the lights
-            // if a pattern isn't running, start one
-            if (pattern > 5 || ledcontrol.getPredefPattern() != pattern) {
-                ledcontrol.setPattern(pattern);
-            }
-        } else {
-            ledcontrol.clearAll();
-        }
+        ledcontrol.setPattern(pattern);
     }
 
     @Override
