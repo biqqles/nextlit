@@ -167,6 +167,8 @@ public class MainActivity extends AppCompatActivity
 
         // display default fragment
         onNavigationItemSelected(navigationView.getMenu().findItem(R.id.nav_per_app));
+        // open navigation drawer
+        navigationDrawer.openDrawer(GravityCompat.START);
     }
 
     @Override
