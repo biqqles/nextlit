@@ -224,6 +224,16 @@ public class MainActivity extends AppCompatActivity
         super.onPause();
     }
 
+    @Override
+    protected void onResume() {
+        // Ensures that the service switch reflects whether the service is bound. If the user
+        // disables the service in system settings the switch within the app should reflect that.
+        if (serviceSwitch.isChecked()) {
+            serviceSwitch.setChecked(serviceBound());
+        }
+        super.onResume();
+    }
+
     public void restoreLightsState() {
         // Restores the "proper" state of the leds. Should be called after any setting which might
         // require a change in their current visibility has been modified.
