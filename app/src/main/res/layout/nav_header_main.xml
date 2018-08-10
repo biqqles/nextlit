@@ -52,9 +52,9 @@
     <include
         layout="@layout/pattern_select"
         android:layout_width="fill_parent"
-        android:paddingTop="@dimen/nav_header_vertical_margin"
-        android:layout_marginStart="5dp"
-        android:layout_marginEnd="5dp"
+        android:layout_marginTop="@dimen/standard_margin"
+        android:layout_marginStart="@dimen/standard_margin"
+        android:layout_marginEnd="@dimen/standard_margin"
         android:layout_height="wrap_content" />
 
 </LinearLayout>

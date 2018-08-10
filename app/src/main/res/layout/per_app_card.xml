@@ -15,15 +15,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingBottom="5dp"
-        android:paddingEnd="10dp"
-        android:paddingStart="10dp"
-        android:paddingTop="5dp">
+        android:paddingBottom="@dimen/standard_margin"
+        android:paddingEnd="@dimen/card_padding"
+        android:paddingStart="@dimen/card_padding"
+        android:paddingTop="@dimen/standard_margin">
 
         <ImageView
             android:id="@+id/icon"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="@dimen/card_icon_side_length"
+            android:layout_height="@dimen/card_icon_side_length"
             android:layout_gravity="top"
             android:layout_marginEnd="3dp"
             android:contentDescription="@string/icon_hint"
@@ -33,8 +33,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:layout_marginEnd="5dp"
-            android:layout_marginStart="5dp"
+            android:layout_marginEnd="@dimen/standard_margin"
+            android:layout_marginStart="@dimen/standard_margin"
             android:layout_weight="1"
             android:orientation="vertical">
 
@@ -85,7 +85,7 @@
         <ToggleButton
             android:id="@+id/expand"
             android:layout_width="25dp"
-            android:layout_height="50dp"
+            android:layout_height="@dimen/card_icon_side_length"
             android:layout_gravity="top"
             android:background="@android:color/transparent"
             android:button="@drawable/ic_expand"

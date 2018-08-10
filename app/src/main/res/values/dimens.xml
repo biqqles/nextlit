@@ -7,4 +7,8 @@
     <dimen name="card_elevation">2dp</dimen>
     <dimen name="card_horizontal_margin">8dp</dimen>
     <dimen name="card_vertical_margin">4dp</dimen>
+    <dimen name="card_padding">10dp</dimen>
+    <dimen name="card_icon_side_length">50dp</dimen>
+
+    <dimen name="standard_margin">5dp</dimen>
 </resources>
