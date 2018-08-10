@@ -217,6 +217,13 @@ public class MainActivity extends AppCompatActivity
         restoreLightsState();
     }
 
+    @Override
+    protected void onPause() {
+        // Stops preview when activity loses focus.
+        stopPreview(previewButton);
+        super.onPause();
+    }
+
     public void restoreLightsState() {
         // Restores the "proper" state of the leds. Should be called after any setting which might
         // require a change in their current visibility has been modified.
