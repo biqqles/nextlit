@@ -24,9 +24,8 @@
     <string name="pref_obey_dnd_title">Obey Do Not Disturb policy</string>
     <string name="pref_obey_dnd_summary">Do not activate lights when Do Not Disturb is active</string>
 
-    <string name="choose_pattern">Select pattern</string>
-    <string name="preview_pattern">Preview</string>
-    <string name="default_pattern">DEFAULT</string>
+    <string name="choose_pattern">Select default pattern</string>
+    <string name="default_pattern">Default</string>
     <string name="preview_active">Previewing {0}</string>
 
     <string name="service_enabled">Service enabled</string>

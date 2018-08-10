@@ -9,7 +9,9 @@
             android:id="@+id/nav_per_app"
             android:icon="@drawable/ic_apps"
             android:title="@string/title_fragment_per_app_config" />
+    </group>
 
+    <group>
         <item
             android:id="@+id/nav_settings"
             android:icon="@drawable/ic_settings"

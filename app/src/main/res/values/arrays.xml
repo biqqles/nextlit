@@ -2,7 +2,7 @@
 <resources>
     <string-array name="predefinedPatternNames">
         <!--Descriptions for the patterns programmed into the LP5523 by Nextbit-->
-        <item>No pattern selected</item>
+        <item>None</item>
         <item>Bright</item>
         <item>Flow</item>
         <item>Flow (reversed)</item>
