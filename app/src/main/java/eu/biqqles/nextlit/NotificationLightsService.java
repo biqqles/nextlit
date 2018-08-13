@@ -22,6 +22,8 @@ import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Comparator;
 
 public class NotificationLightsService extends NotificationListenerService {
     private LedControl ledcontrol;
@@ -87,8 +89,9 @@ public class NotificationLightsService extends NotificationListenerService {
     }
 
     void updateState() {
-        // Decides whether the user needs to be notified and activates or deactivates the LEDs
-        // accordingly.
+        // Decides if, and how, the user needs to be notified and activates or deactivates the leds
+        // accordingly. If notifying apps have conflicting patterns set, the notification with the
+        // highest priority takes precedence and its pattern will be the one that is run.
 
         // service configuration options, listed in a rough order of priority
         final boolean enabled = prefs.getBoolean("service_enabled", false);
@@ -102,11 +105,8 @@ public class NotificationLightsService extends NotificationListenerService {
 
         String pattern = null;  // null represents disabled lights
 
-        // get notifications
-        final StatusBarNotification[] notifications = getActiveNotifications();
-        if (notifications == null) {
-            return;  // service hasn't been initialised yet
-        }
+        // get notifications in order of priority
+        final StatusBarNotification[] notifications = getNotificationsByPriority();
 
         if (enabled && !(dndActive && obeyDnDPolicy) && (!screenOn || showWhenScreenOn)) {
 
@@ -143,6 +143,22 @@ public class NotificationLightsService extends NotificationListenerService {
             }
         }
         ledcontrol.setPattern(pattern);
+    }
+
+    private StatusBarNotification[] getNotificationsByPriority() {
+        // Get notifications sorted by priority in descending order, then by natural order.
+        final StatusBarNotification[] notifications = getActiveNotifications();
+        if (notifications == null) {  // service hasn't been initialised yet
+            return new StatusBarNotification[0];
+        }
+
+        Arrays.sort(notifications, new Comparator<StatusBarNotification>() {
+            public int compare(StatusBarNotification a, StatusBarNotification b) {
+                // priority constants vary between -2 (PRIORITY_MIN) and 2 (PRIORITY_MAX)
+                return Integer.compare(b.getNotification().priority, a.getNotification().priority);
+            }
+        });
+        return notifications;
     }
 
     @Override
