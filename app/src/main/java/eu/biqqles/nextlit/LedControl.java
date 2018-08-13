@@ -56,19 +56,24 @@ class LedControl {
             this.leds = leds + new String(new char[LED_COUNT_MAX - LED_COUNT]).replace('\0', '0');
             /*
             Reference: <www.farnell.com/datasheets/1814222.pdf>, Section 4: Instruction Set Details.
-            <https://wiki.maemo.org/LED_patterns#Lysti_Format_Engine_Patterns_and_Commands> may also
-            be useful.
-            "Basic instruction set"
+            <wiki.maemo.org/LED_patterns#Lysti_Format_Engine_Patterns_and_Commands> may also be
+            useful. The following is the basic instruction subset used in this program.
+
                 98d0 -- start, load multiplexer register
+                9d0x -- select one led to be controlled (where x is count of the led in mux)
+                9d00 -- clear engine to output mapping
                 40xx -- set brightness of all LEDs controlled by the engine
                 xxyy -- change brightness over time: time (per step), number of steps. If xx is odd,
                         i.e. its LSB is 1, decrement
                 xx00 -- wait (variation of xxyy) - maximum value for xx is 7f
-                9d0x -- select led to be controlled (where x is count of the led in mux)
                 0000 -- reset program counter and restart execution - if missed, messes up switching
-            A maximum of 16 instructions (kernel limitation, hardware can store up to 96), but since
+
+            A maximum of 16 instructions (driver limitation, hardware can store up to 96), but since
             98d0 and 0000 are required for the pattern to function properly, we really only have a
-            pithy 14 instructions per engine.
+            pithy 14 instructions per engine. Additionally and *inexplicably*, instruction sequences
+            which do not contain the mux_sel (9d0x) instruction refuse to work at all if run at any
+            point after predefined pattern 5 unless they contain mux_clr (9d00), reducing the number
+            of actual instructions yet further to 13 in some cases.
 
             This class allows instructions to be separated with _ for readability.
             */
@@ -114,14 +119,13 @@ class LedControl {
         // Sets (activates) a given pattern.
         if (pattern != null) {
             if (pattern.customEngines == null) {
+                // If the pattern is already running, don't write it again as this will cause it to
+                // restart which looks a little unpolished. This isn't possible for custom patterns
+                // as there's no way to get the current running pattern from an engine
                 if (pattern.predefinedKey != getPredefPattern()) {
-                    // If the pattern is already running, don't write it again as this will cause it
-                    // to restart which looks a little unpolished. This isn't possible for custom
-                    // patterns as there's no way to get the current running pattern from an engine.
                     setPredefPattern(pattern);
                 }
             } else {
-                clearAll();  // without resetting the pattern registers, behaviour is undefined
                 setCustomPattern(pattern);
             }
         } else {
@@ -137,8 +141,10 @@ class LedControl {
 
     void clearAll() {
         // Disables the running pattern, resets all engines and sets all pwm channels to 0.
-        echoToFile("0", PATTERN_FILE);  // end predefined pattern execution
-        disableAllEngines();  // end engine execution
+        // sets all outputs to 0, yet (curiously) retains engine mode and mapping
+        echoToFile("0", PATTERN_FILE);
+        // disable the now inactive engines (for neatness' sake more than anything else)
+        disableAllEngines();
     }
 
     private boolean isEngineRunning() {
@@ -168,19 +174,21 @@ class LedControl {
     private void setPredefPattern(Pattern pattern) {
         // Sets a predefined pattern (programmed by Nextbit in platform data).
         // For descriptions of the five patterns available, see arrays.xml.
+        clearAll();  // without resetting the engines, behaviour is undefined
         echoToFile(Integer.toString(pattern.predefinedKey), PATTERN_FILE);
     }
 
     private void setCustomPattern(Pattern pattern) {
         // Writes and runs a pattern using the "legacy" interface (the only one available on the
         // Robin, though strangely it seems to have some files related to the "new" interface.
-        // Documentation: <https://github.com/torvalds/linux/blob/master/Documentation/leds/leds-lp5523.txt>
+        // <https://github.com/torvalds/linux/blob/master/Documentation/leds/leds-lp5523.txt>
+        clearAll();  // load mode must be entered from disabled mode (datasheet page 29)
         for (Engine engine: pattern.customEngines) {
             final String engine_mode = MessageFormat.format("engine{0}_mode", engine.number);
             final String engine_load = MessageFormat.format("engine{0}_load", engine.number);
             final String engine_leds = MessageFormat.format("engine{0}_leds", engine.number);
 
-            echoToFile("load", engine_mode);  // freezes pwm and execution
+            echoToFile("load", engine_mode);
             echoToFile(engine.instructions, engine_load);
             echoToFile(engine.leds, engine_leds);
             echoToFile("run", engine_mode);

@@ -5,7 +5,7 @@
       {
         "number": 2,
         "leds": "1111",
-        "instructions": "9d80_40ff_7f00_5f00_4000_7f00_5f00_0000"
+        "instructions": "9d00_9d80_40ff_7f00_5f00_4000_7f00_5f00_0000"
       }
     ]
   },
@@ -27,7 +27,7 @@
       {
         "number": 2,
         "leds": "1111",
-        "instructions": "9d80_1aff_19ff_0000"
+        "instructions": "9d00_9d80_1aff_19ff_0000"
       }
     ]
   },
@@ -38,7 +38,7 @@
       {
         "number": 2,
         "leds": "1111",
-        "instructions": "9d80_12ff_13dc_0000"
+        "instructions": "9d00_9d80_12ff_13dc_0000"
       }
     ]
   },
