@@ -20,7 +20,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -130,7 +129,6 @@ class ApplicationAdapter extends RecyclerView.Adapter<ApplicationAdapter.AppCard
 
     static class AppCard extends RecyclerView.ViewHolder {
         static final long EXPAND_ANIMATION_DURATION = 240L;
-        CardView card;
         ImageView icon;
         TextView name;
         TextView packageName;
@@ -138,10 +136,11 @@ class ApplicationAdapter extends RecyclerView.Adapter<ApplicationAdapter.AppCard
         LinearLayout configLayout;
         CheckBox enabled;
         Spinner pattern;
+        View view;
 
         AppCard(View itemView) {
             super(itemView);
-            card = itemView.findViewById(R.id.cardView);
+            view = itemView;
             icon = itemView.findViewById(R.id.icon);
             name = itemView.findViewById(R.id.name);
             packageName = itemView.findViewById(R.id.packageName);
@@ -149,6 +148,15 @@ class ApplicationAdapter extends RecyclerView.Adapter<ApplicationAdapter.AppCard
             configLayout = itemView.findViewById(R.id.configLayout);
             enabled = itemView.findViewById(R.id.checkBox);
             pattern = itemView.findViewById(R.id.spinner);
+        }
+
+        void setExpansionState(boolean expanded) {
+            // animate button
+            expand.animate().
+                    rotation(expanded ? 180f : 0f).setDuration(EXPAND_ANIMATION_DURATION).start();
+
+            // show configLayout
+            configLayout.setVisibility(expanded ? View.VISIBLE : View.GONE);
         }
     }
 
@@ -189,17 +197,11 @@ class ApplicationAdapter extends RecyclerView.Adapter<ApplicationAdapter.AppCard
         card.expand.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton button, boolean checked) {
-                // animate button
-                final float rotation = card.expand.getRotation();
-                card.expand.animate().rotation(rotation == 0f ? 180f : 0f).setDuration(
-                        AppCard.EXPAND_ANIMATION_DURATION).start();
-
-                // show configLayout
-                card.configLayout.setVisibility(checked ? View.VISIBLE : View.GONE);
+                card.setExpansionState(checked);
                 if (checked) {
                     // on expansion, populate fields
                     ArrayList<String> patternNames = patternProvider.getNames();
-                    patternNames.set(0, "Default");
+                    patternNames.set(0, context.getResources().getString(R.string.default_pattern));
                     card.pattern.setAdapter(new ArrayAdapter<>(context,
                             android.R.layout.simple_spinner_dropdown_item, patternNames));
 
@@ -218,13 +220,22 @@ class ApplicationAdapter extends RecyclerView.Adapter<ApplicationAdapter.AppCard
                     card.pattern.setEnabled(appEnabled);
                     card.pattern.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                         public void onItemSelected(AdapterView adapterView, View view, int i, long l) {
-                            final String patternName = i > 0 ? card.pattern.getSelectedItem().toString() : null;
+                            final String patternName =
+                                    i > 0 ? card.pattern.getSelectedItem().toString() : null;
                             appsPatterns.edit().putString(app.packageName, patternName).apply();
                         }
 
                         public void onNothingSelected(AdapterView<?> adapterView) { }
                     });
                 }
+            }
+        });
+
+        // make entire card clickable
+        card.view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                card.expand.toggle();
             }
         });
     }
