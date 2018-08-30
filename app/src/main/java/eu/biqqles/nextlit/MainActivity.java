@@ -103,8 +103,6 @@ public class MainActivity extends AppCompatActivity
         previewButton = header.findViewById(R.id.previewButton);
 
         // this switch enables and disables the notification service
-        serviceSwitch.setChecked(prefs.getBoolean("service_enabled", false));
-
         serviceSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton button, boolean checked) {
                 int statusText;
@@ -119,7 +117,6 @@ public class MainActivity extends AppCompatActivity
                     statusText = R.string.service_disabled;
                 }
 
-                Toast.makeText(MainActivity.this, statusText, Toast.LENGTH_SHORT).show();
                 subtitle.setText(statusText);
 
                 /* Normal procedure here would be to call start/stopService, but for whatever reason
@@ -130,6 +127,8 @@ public class MainActivity extends AppCompatActivity
                 prefs.edit().putBoolean("service_enabled", checked).apply();
             }
         });
+
+        serviceSwitch.setChecked(prefs.getBoolean("service_enabled", false));
 
         // this spinner allows the default pattern to be selected
         ArrayList<String> patternNames = patternProvider.getNames();
