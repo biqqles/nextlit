@@ -7,12 +7,6 @@
         android:defaultValue="false" />
 
     <SwitchPreference
-        android:key="use_notif_lights_rule"
-        android:title="@string/pref_use_notif_rule_title"
-        android:summary="@string/pref_use_notif_rule_summary"
-        android:defaultValue="false" />  <!--Only supported on API 26 and up-->
-
-    <SwitchPreference
         android:key="show_for_ongoing"
         android:title="@string/pref_show_for_ongoing_title"
         android:summary="@string/pref_show_for_ongoing_summary"
@@ -23,5 +17,10 @@
         android:title="@string/pref_obey_dnd_title"
         android:summary="@string/pref_obey_dnd_summary"
         android:defaultValue="false" />
+
+    <SwitchPreference
+        android:key="mimic_standard_behaviour"
+        android:title="@string/mimic_standard_behaviour_title"
+        android:summary="@string/mimic_standard_behaviour_summary" />
 
 </PreferenceScreen>

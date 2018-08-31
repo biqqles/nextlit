@@ -18,8 +18,8 @@
     <string name="pref_show_for_ongoing_title">Show for ongoing notifications</string>
     <string name="pref_show_for_ongoing_summary">Activate lights for ongoing (persistent) notifications</string>
 
-    <string name="pref_use_notif_rule_title">Mimic standard LED behaviour (8.0+)</string>
-    <string name="pref_use_notif_rule_summary">Only activate lights for notifications that trigger the standard notification LED</string>
+    <string name="mimic_standard_behaviour_title">Mimic standard LED behaviour</string>
+    <string name="mimic_standard_behaviour_summary">Only activate lights for notifications while they trigger the standard notification LED</string>
 
     <string name="pref_obey_dnd_title">Obey Do Not Disturb policy</string>
     <string name="pref_obey_dnd_summary">Do not activate lights when Do Not Disturb is active</string>

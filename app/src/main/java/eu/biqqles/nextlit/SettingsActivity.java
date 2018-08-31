@@ -9,26 +9,43 @@
 
 package eu.biqqles.nextlit;
 
-import android.os.Build;
 import android.os.Bundle;
-import android.support.v14.preference.SwitchPreference;
+import android.preference.Preference;
+import android.preference.PreferenceFragment;
+import android.preference.SwitchPreference;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.preference.PreferenceFragmentCompat;
 
 public class SettingsActivity extends AppCompatActivity {
     // This activity displays settings that allow the behaviour of the service to be configured.
-    static public class SettingsFragment extends PreferenceFragmentCompat {
+    static public class SettingsFragment extends PreferenceFragment {
         @Override
-        public void onCreatePreferences(Bundle bundle, String s) {
+        public void onCreate(Bundle bundle) {
+            super.onCreate(bundle);
             addPreferencesFromResource(R.xml.preferences);
 
-            // disable options on platforms lower than Oreo
-            final boolean O = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
-            final SwitchPreference useNotifLightsRule =
-                    (SwitchPreference) findPreference("use_notif_lights_rule");
-            useNotifLightsRule.setChecked(O);
-            useNotifLightsRule.setEnabled(O);
+            // mimic_standard_behaviour and show_when_screen_on are mutually exclusive, but not
+            // inverse: it is possible for both to be unchecked
+            final SwitchPreference screenOn =
+                    (SwitchPreference) findPreference("show_when_screen_on");
+            final SwitchPreference mimic =
+                    (SwitchPreference) findPreference("mimic_standard_behaviour");
+
+            screenOn.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    if ((Boolean) newValue) mimic.setChecked(false);
+                    return true;
+                }
+            });
+
+            mimic.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object newValue) {
+                    if ((Boolean) newValue) screenOn.setChecked(false);
+                    return true;
+                }
+            });
         }
     }
 
@@ -43,9 +60,8 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
         // display fragment
-        getSupportFragmentManager().beginTransaction()
+        getFragmentManager().beginTransaction()
                 .replace(android.R.id.content, new SettingsFragment())
                 .commit();
     }
-
 }
