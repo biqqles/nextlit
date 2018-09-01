@@ -12,17 +12,20 @@
 
     <string name="root_denied">Nextlit requires root access. Closing.</string>
 
-    <string name="pref_show_screen_on_title">Show when screen on</string>
-    <string name="pref_show_screen_on_summary">Activate lights for notifications while the screen is on</string>
+    <string name="pref_category_service">Service</string>
+    <string name="pref_category_experimental">Experimental</string>
 
-    <string name="pref_show_for_ongoing_title">Show for ongoing notifications</string>
-    <string name="pref_show_for_ongoing_summary">Activate lights for ongoing (persistent) notifications</string>
+    <string name="pref_title_show_screen_on">Show when screen on</string>
+    <string name="pref_summary_show_screen_on">Activate lights for notifications while the screen is on</string>
 
-    <string name="mimic_standard_behaviour_title">Mimic standard LED behaviour</string>
-    <string name="mimic_standard_behaviour_summary">Only activate lights for notifications while they trigger the standard notification LED</string>
+    <string name="pref_title_show_for_ongoing">Show for all notifications</string>
+    <string name="pref_summary_show_for_ongoing">Activate lights for all notifications</string>
 
-    <string name="pref_obey_dnd_title">Obey Do Not Disturb policy</string>
-    <string name="pref_obey_dnd_summary">Do not activate lights when Do Not Disturb is active</string>
+    <string name="pref_title_mimic_standard">Mimic standard LED behaviour</string>
+    <string name="pref_summary_mimic_standard">Only activate lights for notifications while they trigger the standard notification LED</string>
+
+    <string name="pref_title_obey_dnd">Obey Do not disturb policy</string>
+    <string name="pref_summary_obey_dnd">"Do not activate lights in 'alarms only' or 'total silence' mode"</string>
 
     <string name="choose_pattern">Select default pattern</string>
     <string name="default_pattern">Default</string>

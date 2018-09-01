@@ -1,26 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <SwitchPreference
-        android:key="show_when_screen_on"
-        android:title="@string/pref_show_screen_on_title"
-        android:summary="@string/pref_show_screen_on_summary"
-        android:defaultValue="false" />
+    <PreferenceCategory android:title="@string/pref_category_service">
+        <SwitchPreference
+            android:key="show_when_screen_on"
+            android:title="@string/pref_title_show_screen_on"
+            android:summary="@string/pref_summary_show_screen_on"
+            android:defaultValue="false" />
 
-    <SwitchPreference
-        android:key="show_for_ongoing"
-        android:title="@string/pref_show_for_ongoing_title"
-        android:summary="@string/pref_show_for_ongoing_summary"
-        android:defaultValue="false" />
+        <SwitchPreference
+            android:key="show_for_ongoing"
+            android:title="@string/pref_title_show_for_ongoing"
+            android:summary="@string/pref_summary_show_for_ongoing"
+            android:defaultValue="false" />
 
-    <SwitchPreference
-        android:key="obey_dnd_policy"
-        android:title="@string/pref_obey_dnd_title"
-        android:summary="@string/pref_obey_dnd_summary"
-        android:defaultValue="false" />
+        <SwitchPreference
+            android:key="obey_dnd_policy"
+            android:title="@string/pref_title_obey_dnd"
+            android:summary="@string/pref_summary_obey_dnd"
+            android:defaultValue="false" />
+    </PreferenceCategory>
 
-    <SwitchPreference
-        android:key="mimic_standard_behaviour"
-        android:title="@string/mimic_standard_behaviour_title"
-        android:summary="@string/mimic_standard_behaviour_summary" />
+    <PreferenceCategory android:title="@string/pref_category_experimental">
+        <SwitchPreference
+            android:key="mimic_standard_behaviour"
+            android:title="@string/pref_title_mimic_standard"
+            android:summary="@string/pref_summary_mimic_standard"
+            android:defaultValue="false" />
+    </PreferenceCategory>
 
 </PreferenceScreen>
