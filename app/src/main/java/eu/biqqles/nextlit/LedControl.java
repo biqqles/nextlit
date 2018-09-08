@@ -105,7 +105,7 @@ class LedControl {
 
     LedControl(HashMap<String, Pattern> patterns) throws IOException {
         patternStore = patterns;
-        su = acquireRoot();
+        su = acquireSU();
         // cd to device (so from now on all paths will be relative to it)
         execCommand(format("cd {0}", SEGMENTED_DEVICE), false);
     }
@@ -199,10 +199,22 @@ class LedControl {
         return !catFile(WLED_BRIGHTNESS).equals("0");
     }
 
-    private Process acquireRoot() throws IOException {
-        // Creates a Process with root privileges.
-        // It's worth noting that writing & reading files with root privileges can only be achieved
-        // through shell commands, and not Java itself.
+    private Process acquireSU() throws IOException {
+        // Creates a Process with root privileges. If root is unavailable or denied, an IOException
+        // will be thrown.
+
+        // I tried accessing Process.hasExited, since this is true if root is denied, but strangely
+        // this seems only to be set while in the debugger. Instead, test the execution of no-op:
+        try {
+            if (Runtime.getRuntime().exec("su -c :").waitFor() > 0) {
+                throw new IOException();
+            }
+        } catch (InterruptedException | IOException e) {
+            final IOException exception = new IOException("Root unavailable or denied");
+            Log.e("Nextlit", exception.getMessage());
+            throw exception;
+        }
+
         return Runtime.getRuntime().exec("su");
     }
 
@@ -229,7 +241,7 @@ class LedControl {
                 return output.readLine();
             }
         } catch (IOException e) {
-            Log.e("NEXTLIT", format("Failed to execute command `{0}` with error {1}", command, e));
+            Log.e("Nextlit", format("Failed to execute command `{0}` with error {1}", command, e));
         }
         return null;
     }
