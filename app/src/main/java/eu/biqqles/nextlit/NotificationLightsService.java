@@ -16,6 +16,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.media.AudioManager;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
@@ -26,6 +28,7 @@ import java.util.Comparator;
 
 public class NotificationLightsService extends NotificationListenerService {
     private LedControl ledcontrol;
+    private AudioManager audio;
     private BroadcastReceiver screenReceiver;
     private BroadcastReceiver dndReceiver;
     private NotificationManager manager;
@@ -48,6 +51,7 @@ public class NotificationLightsService extends NotificationListenerService {
             System.exit(126);  // command not executable due to insufficient privileges
         }
 
+        audio = (AudioManager) getSystemService(AUDIO_SERVICE);
         manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         appsEnabled = getSharedPreferences("apps_enabled", MODE_PRIVATE);
@@ -72,7 +76,9 @@ public class NotificationLightsService extends NotificationListenerService {
 
         // and for changes in interruption filter state
         final IntentFilter dndFilter = new IntentFilter();
-        dndFilter.addAction(NotificationManager.ACTION_INTERRUPTION_FILTER_CHANGED);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            dndFilter.addAction(NotificationManager.ACTION_INTERRUPTION_FILTER_CHANGED);
+        }
 
         dndReceiver = new BroadcastReceiver() {
             @Override
@@ -136,28 +142,24 @@ public class NotificationLightsService extends NotificationListenerService {
         // get notifications in order of priority
         final StatusBarNotification[] notifications = getNotificationsByPriority();
 
-        if (enabled && !(dndActive && obeyDnDPolicy) && (!screenOn || showWhenScreenOn)) {
-
+        if (enabled && !(dndActive && obeyDnDPolicy)) {
             for (StatusBarNotification sbn : notifications) {
-                final Notification notification = sbn.getNotification();
                 final String packageName = sbn.getPackageName();
                 final boolean appEnabled = appsEnabled.getBoolean(packageName, true);
                 final String appPattern = appsPatterns.getString(packageName, null);
 
                 if (!appEnabled) continue;
 
-                boolean notificationShowsLights;
-                if (showForAll) {  // show lights for all notifications
-                    notificationShowsLights = true;
-                } else if (mimicStandard) {  // show lights if the notification requests it
-                    notificationShowsLights = notificationShowsLights(notification);
-                } else {  // show lights only for clearable notifications [legacy behaviour]
-                    notificationShowsLights = sbn.isClearable();
+                final Notification notification = sbn.getNotification();
+                final boolean fullscreenOverride = notificationIsFullscreen(notification);
+                final boolean showsLights = showForAll || notificationShowsLights(notification);
+
+                if (!fullscreenOverride) {
+                    if (screenOn && !showWhenScreenOn) continue;
+                    if (mimicStandard && !notificationLightActive) continue;
                 }
 
-                // if 'mimic standard behaviour' is enabled, only activate the pattern if the
-                // standard notification led is active (see notificationShowsLights)
-                if (notificationShowsLights && (!mimicStandard || notificationLightActive)) {
+                if (showsLights || fullscreenOverride) {
                     // for appPattern, null represents the default pattern
                     pattern = appPattern != null ? appPattern : prefs.getString("pattern_name",
                             null);
@@ -186,6 +188,7 @@ public class NotificationLightsService extends NotificationListenerService {
 
     private boolean interruptionFilterActive() {
         // Returns true if "alarms only" or "total silence" is active.
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return false;
         final int filter = manager.getCurrentInterruptionFilter();
         return filter == NotificationManager.INTERRUPTION_FILTER_ALARMS ||
                filter == NotificationManager.INTERRUPTION_FILTER_NONE;
@@ -218,6 +221,31 @@ public class NotificationLightsService extends NotificationListenerService {
                  notification.category.equals(Notification.CATEGORY_MESSAGE));
 
         return guessedByFlags || guessedByCategory;
+    }
+
+    private boolean notificationIsFullscreen(Notification notification) {
+        // Returns true if the notification displays fullscreen, on top of other apps. This is used
+        // by notifications that demand the user's immediate action, such as alarms and incoming
+        // calls. Because these notifications turn on the display they generally do not request the
+        // activation of the standard notification light.
+
+        boolean guessedByIntent = notification.fullScreenIntent != null;
+
+        boolean guessedByCategory = notification.category != null &&
+                (notification.category.equals(Notification.CATEGORY_ALARM) ||
+                 notification.category.equals(Notification.CATEGORY_CALL));
+
+        /* In my testing on Lineage 15.1, com.android.dialer has a strange bug whereby its "incoming
+        call" notification's channel will flip between `phone_incoming_call`, which contains the
+        fullscreen intent, and `phone_ongoing_call`, which does not. This breaks lights for incoming
+        calls. This workaround checks that a call really is in progress when the latter channel is
+        in use. If it isn't, we know that it is set erroneously. */
+
+        boolean incomingCallFix = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+                ("phone_ongoing_call".equals(notification.getChannelId()) &&
+                 audio.getMode() != AudioManager.MODE_IN_CALL);
+
+        return guessedByIntent || guessedByCategory || incomingCallFix;
     }
 
     private boolean checkFlagPresent(int toCheck, int flags) {
