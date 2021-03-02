@@ -1,5 +1,5 @@
 # Nextlit
-[Jump to source](app/src/main/java/eu/biqqles/nextlit/) | [Screenshots](https://forum.xda-developers.com/devdb/project/?id=24361#screenshots)
+[Jump to source](app/src/main/java/eu/biqqles/nextlit) | [Screenshots](https://forum.xda-developers.com/t/3734736)
 
 The [LP5523](http://www.ti.com/product/LP5523)-controlled segmented LEDs on the rear of the [Nextbit Robin](https://en.wikipedia.org/wiki/Nextbit_Robin) are one of the device's most unique features. Yet they see very little use, being used only for effects relating to the now-defunct "Smart Storage" in the stock ROM and simply displaying a pattern during boot in custom ROMs. Nextlit rectifies this by employing these lights as a useful notification indicator.
 
@@ -9,7 +9,7 @@ If you want to use the app for any more than simply previewing the available pat
 
 The app needs root access in order to access `/sys` but will work on any ROM. Nextlit has been [featured on XDA](https://www.xda-developers.com/nextlit-nextbit-robin-led-notifications/) and is free software, released under the Mozilla General Public License version 2.0.
 
-### To do
+### Further ideas
 - user-definable patterns
     - necessitates an [assembler for the LP5523's instruction set](http://www.ti.com/lit/zip/snvc151)
 - music visualisation
